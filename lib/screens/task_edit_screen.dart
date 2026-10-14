@@ -23,6 +23,8 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   late Priority _priority = widget.task?.priority ?? Priority.medium;
   late DateTime? _dueDate = widget.task?.dueDate;
 
+  bool _saving = false;
+
   bool get _isNew => widget.task == null;
 
   @override
@@ -44,8 +46,9 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
     final date = await showDatePicker(
       context: context,
       initialDate: initial,
-      firstDate: DateTime(now.year - 1),
-      lastDate: DateTime(now.year + 5),
+      // An old task's date must stay inside the picker's range.
+      firstDate: initial.isBefore(now) ? initial : now,
+      lastDate: DateTime(now.year + 5, 12, 31),
     );
     if (date == null || !mounted) return;
     final time = await showTimePicker(
@@ -68,26 +71,33 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
 
   Future<void> _save() async {
     final title = _title.text.trim();
-    if (title.isEmpty) return;
-    final note = _note.text.trim();
-    final existing = widget.task;
-    if (existing == null) {
-      await widget.store.add(
-        title: title,
-        note: note,
-        priority: _priority,
-        dueDate: _dueDate,
-      );
-    } else {
-      await widget.store.update(
-        existing.copyWith(
+    if (title.isEmpty || _saving) return;
+    _saving = true;
+    try {
+      final note = _note.text.trim();
+      final existing = widget.task;
+      if (existing == null) {
+        await widget.store.add(
           title: title,
           note: note,
           priority: _priority,
           dueDate: _dueDate,
-          clearDueDate: _dueDate == null,
-        ),
-      );
+        );
+      } else {
+        await widget.store.update(
+          existing.copyWith(
+            title: title,
+            note: note,
+            priority: _priority,
+            dueDate: _dueDate,
+            clearDueDate: _dueDate == null,
+          ),
+        );
+      }
+    } catch (e) {
+      // The change is already in memory and is written again with the
+      // next save, so closing the screen is still correct.
+      debugPrint('Saving task failed: $e');
     }
     if (mounted) Navigator.of(context).pop();
   }

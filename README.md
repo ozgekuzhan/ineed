@@ -1,17 +1,22 @@
 # ineed
 
-A new Flutter project.
+Sade, kişisel bir yapılacaklar uygulaması (Flutter, önce iOS).
 
-## Getting Started
+Yol haritası ve gün gün plan: [PLAN.md](PLAN.md)
 
-This project is a starting point for a Flutter application.
+## Çalıştırma (Mac)
 
-A few resources to get you started if this is your first Flutter project:
+```sh
+flutter pub get
+flutter run          # simülatör veya bağlı iPhone
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Kontroller
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Her adımdan sonra aynı üç kontrol çalıştırılır (CI'da da otomatik çalışır):
+
+```sh
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze
+flutter test
+```

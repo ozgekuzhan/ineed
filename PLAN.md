@@ -27,6 +27,14 @@ Kişisel kullanım için sade bir yapılacaklar uygulaması. İlk hedef: **iOS /
 - **Apple Developer Program** üyeliği — yıllık 99 USD (Hollanda'da Apple faturada € olarak ~€99 civarı gösteriyor). Kayıt developer.apple.com/programs üzerinden; bireysel hesap için KvK kaydı gerekmez.
 - iPhone'u kabloyla Mac'e bağlayıp test etmek (widget ve bildirimler simülatörde de çalışır ama gerçek cihazda denemek daha doğru)
 
+## Çalışma şekli
+
+Her özellik **tek tek** yapılır. Her özellik bittiğinde:
+1. Bütün kod baştan gözden geçirilir (sadece yeni kısım değil)
+2. Bulunan her sorun düzeltilir ve **o sorunu yakalayan bir test** eklenir
+3. Testin gerçekten hatayı yakaladığı, düzeltme geçici olarak geri alınarak doğrulanır
+4. `format` + `analyze` + `test` temiz geçmeden commit yapılmaz (CI da her push'ta kontrol eder)
+
 ## Gün gün plan
 
 ### Gün 1 — İskelet + temel liste ✅
@@ -37,6 +45,14 @@ Kişisel kullanım için sade bir yapılacaklar uygulaması. İlk hedef: **iOS /
 - Görev ekleme/düzenleme ekranı (öncelik seçici, tarih+saat seçici, not)
 - Kaydırarak silme, geri al (undo)
 - Birim testleri
+
+**Gün 1 kontrolü (yapıldı)** — bulunan ve düzeltilen sorunlar:
+- Bozuk kayıt verisi uygulamanın açılmasını engelliyordu → okunamayan veri atlanıp yedekleniyor
+- "Kaydet"e çift dokunma görevi iki kez ekliyordu → koruma eklendi
+- 1 yıldan eski tarihli görevde tarih seçici çöküyordu → tarih aralığı düzeltildi
+- Art arda kayıtlar sırasız bitip yeni veriyi eskisiyle ezebilirdi → kayıtlar sıraya alındı
+- Tamamlama işareti eski görev kopyası üzerinden yapılıyordu → güncel kayıt kullanılıyor
+- Öncelik noktası ekran okuyucuda (VoiceOver) okunmuyordu → etiket eklendi
 
 ### Gün 2 — Arayüz cilası
 - Gecikmiş / bugün / yarın etiketleri ve renkleri

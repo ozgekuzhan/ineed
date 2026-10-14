@@ -51,12 +51,15 @@ class TaskTile extends StatelessWidget {
             ),
       trailing: task.done
           ? null
-          : Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: priorityColor(task.priority, scheme),
-                shape: BoxShape.circle,
+          : Semantics(
+              label: '${task.priority.label} öncelik',
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: priorityColor(task.priority, scheme),
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
     );

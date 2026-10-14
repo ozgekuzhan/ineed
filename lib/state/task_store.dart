@@ -11,6 +11,7 @@ class TaskStore extends ChangeNotifier {
   final _uuid = const Uuid();
   List<Task> _tasks = [];
   bool _loaded = false;
+  Future<void> _saving = Future.value();
 
   bool get loaded => _loaded;
 
@@ -52,7 +53,13 @@ class TaskStore extends ChangeNotifier {
     return _commit();
   }
 
-  Future<void> toggleDone(Task task) => update(task.copyWith(done: !task.done));
+  /// Flips the done state of the stored task with [task]'s id, so a stale
+  /// copy held by the UI can't overwrite newer edits.
+  Future<void> toggleDone(Task task) {
+    final current = _tasks.where((t) => t.id == task.id).firstOrNull;
+    if (current == null) return Future.value();
+    return update(current.copyWith(done: !current.done));
+  }
 
   Future<void> remove(Task task) {
     _tasks.removeWhere((t) => t.id == task.id);
@@ -65,8 +72,13 @@ class TaskStore extends ChangeNotifier {
     return _commit();
   }
 
+  /// Saves run one after another on a snapshot of the list, so a slow
+  /// earlier save can never overwrite a newer one.
   Future<void> _commit() {
     notifyListeners();
-    return _repository.save(_tasks);
+    final snapshot = List<Task>.of(_tasks);
+    return _saving = _saving
+        .catchError((Object _) {})
+        .then((_) => _repository.save(snapshot));
   }
 }
