@@ -1,0 +1,82 @@
+# ineed — Yol Haritası
+
+Kişisel kullanım için sade bir yapılacaklar uygulaması. İlk hedef: **iOS / App Store**.
+
+## Özellikler (v1)
+
+- Görev ekle / düzenle / sil / tamamla
+- **Öncelik**: Yüksek · Orta · Düşük
+- **Not**: her göreve serbest metin
+- **Son tarih (deadline)**: "şu güne/saate kadar" + buna göre **bildirimler**
+- **Ana ekran widget'ı**: listedeki öncelikli görevler telefon ekranında görünsün
+- Sade arayüz, açık/koyu tema, Türkçe
+
+## Teknik kararlar
+
+| Konu | Seçim | Neden |
+|---|---|---|
+| Framework | Flutter (stable) | Tek kod tabanı, ileride Android da açık |
+| Durum yönetimi | `ChangeNotifier` (ek paket yok) | Uygulama küçük, sade kalsın |
+| Kalıcı veri | `shared_preferences` (JSON) | Kişisel liste için yeterli; gerekirse sonra SQLite/Drift |
+| Bildirim | `flutter_local_notifications` + `timezone` | Sunucu gerekmez, cihazda planlanır. Saat dilimi: **Europe/Amsterdam** (cihazdan okunur) |
+| Widget | `home_widget` + Swift **WidgetKit** extension | iOS widget'ları native SwiftUI ile yazılmak zorunda; veri App Group üzerinden paylaşılır |
+
+## Ön koşullar (senin tarafında)
+
+- **Mac + Xcode** (iOS derlemek ve App Store'a göndermek için şart; Linux/Windows'ta olmaz)
+- **Apple Developer Program** üyeliği — yıllık 99 USD (Hollanda'da Apple faturada € olarak ~€99 civarı gösteriyor). Kayıt developer.apple.com/programs üzerinden; bireysel hesap için KvK kaydı gerekmez.
+- iPhone'u kabloyla Mac'e bağlayıp test etmek (widget ve bildirimler simülatörde de çalışır ama gerçek cihazda denemek daha doğru)
+
+## Gün gün plan
+
+### Gün 1 — İskelet + temel liste ✅
+- Flutter projesi (iOS + Android), bundle id `com.ozgekuzhan.ineed`
+- `Task` modeli: başlık, not, öncelik, son tarih, tamamlandı
+- Yerel kayıt (shared_preferences)
+- Ana ekran: açık görevler (önceliğe sonra tarihe göre sıralı), tamamlananlar ayrı bölüm
+- Görev ekleme/düzenleme ekranı (öncelik seçici, tarih+saat seçici, not)
+- Kaydırarak silme, geri al (undo)
+- Birim testleri
+
+### Gün 2 — Arayüz cilası
+- Gecikmiş / bugün / yarın etiketleri ve renkleri
+- Filtre: Tümü · Bugün · Yüksek öncelik
+- Boş durum ekranı, açık/koyu tema ayarı
+- Uygulama ikonu taslağı
+
+### Gün 3 — Bildirimler
+- `flutter_local_notifications` + `timezone` kurulumu, iOS izin isteği
+- Her görev için hatırlatıcı seçimi: son tarihte · 1 saat önce · 1 gün önce
+- Görev tamamlanınca/silinince bildirimin iptali, düzenlenince yeniden planlanması
+- Sabah özeti (opsiyonel): her sabah 08:30'da "bugün X görevin var"
+
+### Gün 4 — iOS Widget (1. kısım)
+- Xcode'da Widget Extension hedefi, App Group (`group.com.ozgekuzhan.ineed`)
+- `home_widget` ile Flutter → widget veri aktarımı (ilk 3–5 açık görev)
+- Küçük ve orta boy widget, SwiftUI görünümü
+
+### Gün 5 — Widget (2. kısım) + etkileşim
+- Widget'tan dokununca ilgili göreve açılma (deep link)
+- iOS 17+ etkileşimli widget: widget üzerinden görevi tamamla (opsiyonel)
+- Veri her değiştiğinde widget'ın yenilenmesi
+
+### Gün 6 — Sağlamlık
+- Widget + bildirim + kayıt için testler
+- Uç durumlar: geçmiş tarih, saat dilimi/yaz saati geçişi (Amsterdam: Mart ve Ekim sonu), çok uzun başlıklar
+- Performans ve erişilebilirlik (Dynamic Type, VoiceOver etiketleri)
+
+### Gün 7 — App Store hazırlığı
+- Uygulama ikonu (1024×1024) ve açılış ekranı
+- App Store Connect'te uygulama kaydı, gizlilik bilgisi ("veri toplanmıyor")
+- Ekran görüntüleri (6.9" ve 6.5" iPhone)
+- `flutter build ipa` → Xcode/Transporter ile yükleme → **TestFlight**
+
+### Gün 8 — Yayın
+- TestFlight'ta birkaç gün kendi kullanımın
+- Düzeltmeler → App Store incelemesine gönderim
+
+## Sonra (v2 fikirleri)
+- iCloud senkronizasyonu (iPhone ↔ iPad)
+- Tekrarlayan görevler (her pazartesi vb.)
+- Etiketler / listeler
+- Android sürümü ve Play Store
