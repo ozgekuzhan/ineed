@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../models/dates.dart';
 import '../state/task_store.dart';
 import '../widgets/minute_ticker.dart';
 import '../widgets/task_tile.dart';
@@ -24,10 +25,6 @@ class HistoryScreen extends StatefulWidget {
   State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-/// The calendar package hands out days as UTC midnights; turn them into the
-/// same calendar day in local time.
-DateTime localDay(DateTime d) => DateTime(d.year, d.month, d.day);
-
 class _HistoryScreenState extends State<HistoryScreen> {
   late DateTime _selected = localDay(widget.clock());
   late DateTime _focused = _selected;
@@ -48,34 +45,39 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _build(DateTime today, DateTime now) {
-    return Column(
-      children: [
-        TableCalendar<void>(
-          locale: 'tr',
-          firstDay: DateTime(2020),
-          lastDay: today,
-          focusedDay: _focused.isAfter(today) ? today : _focused,
-          startingDayOfWeek: StartingDayOfWeek.monday,
-          availableCalendarFormats: const {CalendarFormat.month: 'Ay'},
-          headerStyle: const HeaderStyle(
-            formatButtonVisible: false,
-            titleCentered: true,
+    // One scroll view, so the calendar scrolls away and a long day list gets
+    // the whole screen.
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: TableCalendar<void>(
+            locale: 'tr',
+            firstDay: DateTime(2020),
+            lastDay: today,
+            focusedDay: _focused.isAfter(today) ? today : _focused,
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            availableCalendarFormats: const {CalendarFormat.month: 'Ay'},
+            // Only month swipes; vertical drags must scroll the page.
+            availableGestures: AvailableGestures.horizontalSwipe,
+            headerStyle: const HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+            ),
+            selectedDayPredicate: (d) => isSameDay(d, _selected),
+            // One dot under each day on which something was finished.
+            eventLoader: (d) => [
+              if (widget.store.completedOn(localDay(d)) > 0) null,
+            ],
+            onDaySelected: (selected, focused) => setState(() {
+              _selected = localDay(selected);
+              _focused = localDay(focused);
+            }),
+            onPageChanged: (focused) => _focused = localDay(focused),
           ),
-          selectedDayPredicate: (d) => isSameDay(d, _selected),
-          // One dot under each day on which something was finished.
-          eventLoader: (d) => [
-            if (widget.store.completedOn(localDay(d)) > 0) null,
-          ],
-          onDaySelected: (selected, focused) => setState(() {
-            _selected = localDay(selected);
-            _focused = localDay(focused);
-          }),
-          onPageChanged: (focused) => _focused = localDay(focused),
         ),
-        const Divider(height: 1),
-        Expanded(
-          child: _DayList(store: widget.store, day: _selected, now: now),
-        ),
+        const SliverToBoxAdapter(child: Divider(height: 1)),
+        _DayList(store: widget.store, day: _selected, now: now),
+        const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
       ],
     );
   }
@@ -102,8 +104,7 @@ class _DayList extends StatelessWidget {
     ).subtract(const Duration(milliseconds: 1));
     final asOf = now.isBefore(endOfDay) ? now : endOfDay;
 
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+    return SliverList.list(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),

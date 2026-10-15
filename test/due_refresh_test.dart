@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:ineed/data/event_repository.dart';
 import 'package:ineed/data/task_repository.dart';
 import 'package:ineed/main.dart';
+import 'package:ineed/state/event_store.dart';
 import 'package:ineed/state/settings_store.dart';
 import 'package:ineed/state/task_store.dart';
 
@@ -26,7 +28,12 @@ void main() {
   }
 
   Future<void> pumpApp(WidgetTester tester) => tester.pumpWidget(
-    IneedApp(store: store, settings: SettingsStore(), clock: () => now),
+    IneedApp(
+      events: EventStore(EventRepository()),
+      store: store,
+      settings: SettingsStore(),
+      clock: () => now,
+    ),
   );
 
   testWidgets('label turns overdue when the minute passes', (tester) async {

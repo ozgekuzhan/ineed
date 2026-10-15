@@ -3,10 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:ineed/data/event_repository.dart';
 import 'package:ineed/data/task_repository.dart';
 import 'package:ineed/main.dart';
 import 'package:ineed/models/task.dart';
-import 'package:ineed/screens/history_screen.dart';
+import 'package:ineed/models/dates.dart';
+import 'package:ineed/state/event_store.dart';
 import 'package:ineed/state/settings_store.dart';
 import 'package:ineed/state/task_store.dart';
 
@@ -65,7 +67,12 @@ void main() {
   group('history screen', () {
     Future<void> open(WidgetTester tester, TaskStore store) async {
       await tester.pumpWidget(
-        IneedApp(store: store, settings: SettingsStore(), clock: () => now),
+        IneedApp(
+          events: EventStore(EventRepository()),
+          store: store,
+          settings: SettingsStore(),
+          clock: () => now,
+        ),
       );
       await tester.tap(find.byTooltip('Geçmiş'));
       await tester.pumpAndSettle();
@@ -145,6 +152,41 @@ void main() {
 
       expect(find.text('Bu gün listede görev yoktu'), findsOneWidget);
     });
+  });
+
+  testWidgets('a long day list scrolls on a small phone', (tester) async {
+    final store = TaskStore(TaskRepository(), clock: () => now);
+    await store.load();
+    now = DateTime(2026, 10, 14, 9);
+    for (var i = 1; i <= 15; i++) {
+      await store.add(title: 'Görev $i');
+    }
+    tester.view.physicalSize = const Size(750, 1334);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      IneedApp(
+        events: EventStore(EventRepository()),
+        store: store,
+        settings: SettingsStore(),
+        clock: () => now,
+      ),
+    );
+    await tester.tap(find.byTooltip('Geçmiş'));
+    await tester.pumpAndSettle();
+
+    final finder = find.text('Görev 15');
+    await tester.scrollUntilVisible(
+      finder,
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(CustomScrollView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    expect(finder, findsOneWidget);
   });
 
   test('localDay keeps the calendar day of a UTC midnight', () {

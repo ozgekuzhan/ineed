@@ -69,6 +69,17 @@ Her özellik **tek tek** yapılır. Her özellik bittiğinde:
   **Kontrol (yapıldı)**:
   - İlerleme çubuğunun ekran okuyucu değeri geçersizdi; VoiceOver açıkken hataya yol açacaktı → düzeltildi
 - ✅ Geçmiş (Görevler → saat ikonu): takvimden gün seç, listenin o günkü hali görünür; o gün tamamlananlar üstü çizili, "x / y tamamlandı", tamamlanan günlerde nokta. Salt okunur.
+- ✅ **Takvim sekmesi**: doğum günleri ve etkinlikler
+  - Aylık takvim (noktalı günler) + "Yaklaşanlar" listesi: "Bugün / Yarın / 3 gün sonra", "36 yaşına giriyor"
+  - Güne dokununca o günün kayıtları; tekrar dokununca Yaklaşanlar'a döner
+  - Doğum günü (yılı bilinmiyorsa yaş gösterilmez), etkinlik (saat opsiyonel, "her yıl tekrarla")
+  - 29 Şubat doğumlular artık yıl olmayan yıllarda 28 Şubat'ta
+
+  **Kontrol (yapıldı)** — bulunan ve düzeltilen sorunlar:
+  - 2 yıldan uzak tek seferlik etkinlikler "Yaklaşanlar"da görünmüyordu
+  - Takvim dikey kaydırmayı yutuyordu → parmak takvimin üstündeyken sayfa kaymıyordu (Geçmiş ekranında da)
+  - Takvim + liste ekranı küçük telefonlarda listeye çok az yer bırakıyordu → tek parça kaydırılabilir
+  - Yılı bilinmeyen doğum gününde "yılı biliyorum"a dönünce yer tutucu yıl (2000) gerçek yıl gibi kalıyordu
 - Filtre: Tümü · Bugün · Yüksek öncelik
 - Boş durum ekranı, açık/koyu tema ayarı
 - Uygulama ikonu taslağı

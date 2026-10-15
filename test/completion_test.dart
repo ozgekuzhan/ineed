@@ -3,9 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:ineed/data/event_repository.dart';
 import 'package:ineed/data/task_repository.dart';
 import 'package:ineed/main.dart';
 import 'package:ineed/models/task.dart';
+import 'package:ineed/state/event_store.dart';
 import 'package:ineed/state/settings_store.dart';
 import 'package:ineed/state/task_store.dart';
 
@@ -118,7 +120,12 @@ void main() {
       await store.add(title: 'Sporten');
       now = DateTime(2026, 10, 14, 23, 50);
       await tester.pumpWidget(
-        IneedApp(store: store, settings: settings, clock: () => now),
+        IneedApp(
+          events: EventStore(EventRepository()),
+          store: store,
+          settings: settings,
+          clock: () => now,
+        ),
       );
     }
 

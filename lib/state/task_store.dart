@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../data/task_repository.dart';
 import '../models/task.dart';
+import 'save_queue.dart';
 
 class TaskStore extends ChangeNotifier {
   TaskStore(this._repository, {this._clock = DateTime.now});
@@ -11,7 +12,7 @@ class TaskStore extends ChangeNotifier {
   final DateTime Function() _clock;
   final _uuid = const Uuid();
   List<Task> _tasks = [];
-  Future<void> _saving = Future.value();
+  final _saves = SaveQueue();
 
   List<Task> get openTasks =>
       (_tasks.where((t) => !t.done).toList()..sort(Task.compare));
@@ -89,8 +90,6 @@ class TaskStore extends ChangeNotifier {
   Future<void> _commit() {
     notifyListeners();
     final snapshot = List<Task>.of(_tasks);
-    return _saving = _saving
-        .catchError((Object _) {})
-        .then((_) => _repository.save(snapshot));
+    return _saves.add(() => _repository.save(snapshot));
   }
 }
