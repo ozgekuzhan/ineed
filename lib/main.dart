@@ -23,14 +23,23 @@ Future<void> main() async {
   runApp(IneedApp(store: store, events: events, settings: settings));
   // After the first frame is on its way, so reminders can never delay or
   // block opening the app.
-  unawaited(_startReminders(store, events));
+  unawaited(_startReminders(store, events, settings));
 }
 
-Future<void> _startReminders(TaskStore tasks, EventStore events) async {
+Future<void> _startReminders(
+  TaskStore tasks,
+  EventStore events,
+  SettingsStore settings,
+) async {
   try {
     final notifier = LocalNotifier();
     await notifier.init();
-    NotificationSync(tasks: tasks, events: events, notifier: notifier).start();
+    NotificationSync(
+      tasks: tasks,
+      events: events,
+      settings: settings,
+      notifier: notifier,
+    ).start();
   } catch (e) {
     // The app works without reminders.
     debugPrint('Reminders unavailable: $e');

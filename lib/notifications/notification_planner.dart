@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 
+import '../models/dates.dart';
 import '../models/event.dart';
 import '../models/task.dart';
 
@@ -28,20 +29,19 @@ class PlannedNotification {
 /// rebuilt on every change and app start, so later ones follow in time.
 const maxPlannedNotifications = 60;
 
-/// Hour of the day for birthday/event reminders.
-const eventReminderHour = 9;
-
 /// All reminders after [now], soonest first, capped at
-/// [maxPlannedNotifications].
+/// [maxPlannedNotifications]. Birthday and event reminders come at
+/// [reminderTime].
 List<PlannedNotification> planNotifications({
   required List<Task> tasks,
   required List<Event> events,
   required DateTime now,
+  ClockTime reminderTime = (hour: 9, minute: 0),
 }) {
   final plan =
       <PlannedNotification>[
         for (final t in tasks) ..._forTask(t),
-        for (final e in events) ..._forEvent(e, now),
+        for (final e in events) ..._forEvent(e, now, reminderTime),
       ].where((n) => n.at.isAfter(now)).toList()..sort((a, b) {
         final byTime = a.at.compareTo(b.at);
         return byTime != 0 ? byTime : a.title.compareTo(b.title);
@@ -79,18 +79,26 @@ Iterable<PlannedNotification> _forTask(Task t) sync* {
   );
 }
 
-Iterable<PlannedNotification> _forEvent(Event e, DateTime now) sync* {
+Iterable<PlannedNotification> _forEvent(
+  Event e,
+  DateTime now,
+  ClockTime at,
+) sync* {
   final next = e.nextOccurrence(now);
   if (next == null) return;
-  yield* _forOccurrence(e, next);
+  yield* _forOccurrence(e, next, at);
   // Also the one after, in case the app isn't opened for a long while.
   if (e.repeatsYearly) {
     final following = e.dayInYear(next.year + 1);
-    if (following != null) yield* _forOccurrence(e, following);
+    if (following != null) yield* _forOccurrence(e, following, at);
   }
 }
 
-Iterable<PlannedNotification> _forOccurrence(Event e, DateTime day) sync* {
+Iterable<PlannedNotification> _forOccurrence(
+  Event e,
+  DateTime day,
+  ClockTime at,
+) sync* {
   final isBirthday = e.kind == EventKind.birthday;
   final title = '${isBirthday ? '🎂' : '📅'} ${e.title}';
   final payload = 'event:${e.id}';
@@ -101,7 +109,7 @@ Iterable<PlannedNotification> _forOccurrence(Event e, DateTime day) sync* {
   final dayText = DateFormat('d MMMM EEEE', 'tr').format(day);
 
   yield PlannedNotification(
-    at: DateTime(day.year, day.month, day.day - 3, eventReminderHour),
+    at: DateTime(day.year, day.month, day.day - 3, at.hour, at.minute),
     title: title,
     body: [
       isBirthday ? 'Doğum günü 3 gün sonra' : '3 gün sonra',
@@ -128,7 +136,7 @@ Iterable<PlannedNotification> _forOccurrence(Event e, DateTime day) sync* {
     );
   } else {
     yield PlannedNotification(
-      at: DateTime(day.year, day.month, day.day, eventReminderHour),
+      at: DateTime(day.year, day.month, day.day, at.hour, at.minute),
       title: title,
       body: isBirthday
           ? [

@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../models/dates.dart';
 import '../models/event.dart';
 import '../state/event_store.dart';
+import '../state/settings_store.dart';
 
 class EventEditScreen extends StatefulWidget {
   const EventEditScreen({
     super.key,
     required this.store,
+    required this.settings,
     this.event,
     this.initialDate,
     this.clock = DateTime.now,
   });
 
   final EventStore store;
+  final SettingsStore settings;
 
   /// Null when creating a new entry.
   final Event? event;
@@ -295,7 +299,13 @@ class _EventEditScreenState extends State<EventEditScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '3 gün önce ve gününde hatırlatılır.',
+                  _isBirthday || _time == null
+                      ? '3 gün önce ve gününde saat '
+                            '${formatClockTime(widget.settings.reminderTime)} '
+                            'hatırlatılır (Ayarlar\'dan değiştirilebilir).'
+                      : '3 gün önce saat '
+                            '${formatClockTime(widget.settings.reminderTime)} '
+                            've başlamadan 1 saat önce hatırlatılır.',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

@@ -182,6 +182,26 @@ void main() {
     });
   });
 
+  test('birthday and event reminders use the chosen time', () {
+    final p = planNotifications(
+      tasks: const [],
+      events: [
+        Event(
+          id: 'b',
+          kind: EventKind.birthday,
+          title: 'Ayşe',
+          date: DateTime(1990, 10, 20),
+        ),
+      ],
+      now: now,
+      reminderTime: (hour: 20, minute: 15),
+    );
+    expect(p.take(2).map((n) => n.at), [
+      DateTime(2026, 10, 17, 20, 15),
+      DateTime(2026, 10, 20, 20, 15),
+    ]);
+  });
+
   test('keeps only the soonest 60, in time order', () {
     final tasks = [
       for (var i = 0; i < 40; i++)

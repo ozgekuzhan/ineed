@@ -40,7 +40,11 @@ class _RootScreenState extends State<RootScreen> {
             settings: widget.settings,
             clock: widget.clock,
           ),
-          CalendarScreen(store: widget.events, clock: widget.clock),
+          CalendarScreen(
+            store: widget.events,
+            settings: widget.settings,
+            clock: widget.clock,
+          ),
         ],
       ),
       bottomNavigationBar: NavigationBar(

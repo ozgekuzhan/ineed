@@ -9,3 +9,10 @@ int daysBetween(DateTime from, DateTime to) => DateTime.utc(
   to.month,
   to.day,
 ).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
+
+/// A time of day, without the Material dependency of TimeOfDay.
+typedef ClockTime = ({int hour, int minute});
+
+/// "09:05"-style text for a [ClockTime].
+String formatClockTime(ClockTime t) =>
+    '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';

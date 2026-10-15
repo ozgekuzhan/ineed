@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 import '../state/event_store.dart';
 import '../state/save_queue.dart';
+import '../state/settings_store.dart';
 import '../state/task_store.dart';
 import 'notification_planner.dart';
 import 'notifier.dart';
@@ -16,6 +17,7 @@ class NotificationSync {
   NotificationSync({
     required this.tasks,
     required this.events,
+    required this.settings,
     required this.notifier,
     this.clock = DateTime.now,
     this.debounce = const Duration(milliseconds: 500),
@@ -23,6 +25,7 @@ class NotificationSync {
 
   final TaskStore tasks;
   final EventStore events;
+  final SettingsStore settings;
   final Notifier notifier;
   final DateTime Function() clock;
   final Duration debounce;
@@ -35,6 +38,7 @@ class NotificationSync {
   void start() {
     tasks.addListener(_schedule);
     events.addListener(_schedule);
+    settings.addListener(_schedule);
     _lifecycle = AppLifecycleListener(onResume: _schedule);
     _schedule();
   }
@@ -43,6 +47,7 @@ class NotificationSync {
     _timer?.cancel();
     tasks.removeListener(_schedule);
     events.removeListener(_schedule);
+    settings.removeListener(_schedule);
     _lifecycle?.dispose();
   }
 
@@ -57,6 +62,7 @@ class NotificationSync {
         tasks: tasks.openTasks,
         events: events.all,
         now: clock(),
+        reminderTime: settings.reminderTime,
       );
       if (plan.isNotEmpty && !_askedPermission) {
         _askedPermission = true;

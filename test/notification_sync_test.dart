@@ -10,6 +10,7 @@ import 'package:ineed/notifications/notification_planner.dart';
 import 'package:ineed/notifications/notification_sync.dart';
 import 'package:ineed/notifications/notifier.dart';
 import 'package:ineed/state/event_store.dart';
+import 'package:ineed/state/settings_store.dart';
 import 'package:ineed/state/task_store.dart';
 
 class _FakeNotifier implements Notifier {
@@ -34,6 +35,7 @@ void main() {
   final now = DateTime(2026, 10, 14, 12);
   late TaskStore tasks;
   late EventStore events;
+  late SettingsStore settings;
   late _FakeNotifier notifier;
   late NotificationSync sync;
 
@@ -47,10 +49,13 @@ void main() {
     events = EventStore(EventRepository());
     await tasks.load();
     await events.load();
+    settings = SettingsStore();
+    await settings.load();
     notifier = _FakeNotifier();
     sync = NotificationSync(
       tasks: tasks,
       events: events,
+      settings: settings,
       notifier: notifier,
       clock: () => now,
     )..start();
@@ -137,5 +142,22 @@ void main() {
     }
     await settle(tester);
     expect(notifier.calls.length, before + 1);
+  });
+
+  testWidgets('changing the reminder time re-plans at the new time', (
+    tester,
+  ) async {
+    await start();
+    await events.add(
+      kind: EventKind.birthday,
+      title: 'Ayşe',
+      date: DateTime(1990, 10, 20),
+    );
+    await settle(tester);
+    expect(notifier.calls.last.first.at, DateTime(2026, 10, 17, 9));
+
+    await settings.setReminderTime((hour: 7, minute: 30));
+    await settle(tester);
+    expect(notifier.calls.last.first.at, DateTime(2026, 10, 17, 7, 30));
   });
 }

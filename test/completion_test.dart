@@ -100,6 +100,56 @@ void main() {
     expect(reloaded.completedBehavior, CompletedBehavior.hide);
   });
 
+  test('reminder time is remembered', () async {
+    final settings = SettingsStore();
+    await settings.load();
+    expect(settings.reminderTime, (hour: 9, minute: 0));
+    await settings.setReminderTime((hour: 7, minute: 45));
+
+    final reloaded = SettingsStore();
+    await reloaded.load();
+    expect(reloaded.reminderTime, (hour: 7, minute: 45));
+  });
+
+  test('a broken saved reminder time falls back to 09:00', () async {
+    SharedPreferences.setMockInitialValues({'settings_reminder_minutes': 9999});
+    final settings = SettingsStore();
+    await settings.load();
+    expect(settings.reminderTime, (hour: 9, minute: 0));
+  });
+
+  testWidgets('reminder time can be picked in settings', (tester) async {
+    final settings = SettingsStore();
+    await settings.load();
+    await tester.pumpWidget(
+      IneedApp(
+        events: EventStore(EventRepository()),
+        store: TaskStore(TaskRepository()),
+        settings: settings,
+      ),
+    );
+    await tester.tap(find.byTooltip('Ayarlar'));
+    await tester.pumpAndSettle();
+    expect(find.text('09:00'), findsOneWidget);
+
+    await tester.tap(find.text('Doğum günü ve etkinlik saati'));
+    await tester.pumpAndSettle();
+    // Switch the picker to typing and enter 07:30.
+    await tester.tap(find.byIcon(Icons.keyboard_outlined));
+    await tester.pumpAndSettle();
+    final fields = find.descendant(
+      of: find.byType(TimePickerDialog),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(fields.at(0), '07');
+    await tester.enterText(fields.at(1), '30');
+    await tester.tap(find.text('Tamam'));
+    await tester.pumpAndSettle();
+
+    expect(settings.reminderTime, (hour: 7, minute: 30));
+    expect(find.text('07:30'), findsOneWidget);
+  });
+
   group('today list', () {
     late DateTime now;
     late TaskStore store;

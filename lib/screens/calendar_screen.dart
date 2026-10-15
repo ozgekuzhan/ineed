@@ -5,6 +5,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../models/dates.dart';
 import '../models/event.dart';
 import '../state/event_store.dart';
+import '../state/settings_store.dart';
 import '../widgets/minute_ticker.dart';
 import 'event_edit_screen.dart';
 
@@ -14,10 +15,12 @@ class CalendarScreen extends StatefulWidget {
   const CalendarScreen({
     super.key,
     required this.store,
+    required this.settings,
     this.clock = DateTime.now,
   });
 
   final EventStore store;
+  final SettingsStore settings;
   final DateTime Function() clock;
 
   @override
@@ -36,6 +39,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         fullscreenDialog: event == null,
         builder: (_) => EventEditScreen(
           store: widget.store,
+          settings: widget.settings,
           event: event,
           initialDate: day,
           clock: widget.clock,

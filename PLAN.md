@@ -91,7 +91,8 @@ Her özellik **tek tek** yapılır. Her özellik bittiğinde:
 - Her değişiklikte ve uygulamaya dönüşte yeniden planlanır; iOS sınırı (64) nedeniyle en yakın 60 hatırlatma
 - Tamamlanan/silinen görevin hatırlatmaları kalkar; bildirim merkezindekiler silinmez
 - Seyahatte cihazın saat dilimine uyar
-- Kalan: sabah özeti, ayarlardan hatırlatma saatini değiştirme, bildirime dokununca ilgili kayda gitme
+- ✅ Ayarlar → Hatırlatmalar: doğum günü/etkinlik hatırlatma saati seçilebilir (varsayılan 09:00); değişince tüm hatırlatmalar yeniden planlanır
+- Kalan: sabah özeti, bildirime dokununca ilgili kayda gitme
 
 **Genel kontrol (tüm kod, yapıldı)** — bulunan ve düzeltilen sorunlar:
 - Bildirim sistemi uygulama açılışını geciktirebiliyordu → ilk ekrandan sonra arka planda başlıyor
