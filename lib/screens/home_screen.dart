@@ -1,17 +1,23 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
-import '../models/due_label.dart';
 import '../models/task.dart';
+import '../state/settings_store.dart';
 import '../state/task_store.dart';
+import '../widgets/minute_ticker.dart';
 import '../widgets/task_tile.dart';
+import 'settings_screen.dart';
 import 'task_edit_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.store, this.clock = DateTime.now});
+  const HomeScreen({
+    super.key,
+    required this.store,
+    required this.settings,
+    this.clock = DateTime.now,
+  });
 
   final TaskStore store;
+  final SettingsStore settings;
 
   /// Source of the current time; replaced in tests.
   final DateTime Function() clock;
@@ -21,41 +27,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _showDone = false;
-  Timer? _ticker;
-  late final AppLifecycleListener _lifecycle;
-
   TaskStore get store => widget.store;
-
-  @override
-  void initState() {
-    super.initState();
-    _scheduleTick();
-    // Timers don't run while the app is in the background, so refresh as
-    // soon as it comes back.
-    _lifecycle = AppLifecycleListener(onResume: _tick);
-  }
-
-  @override
-  void dispose() {
-    _ticker?.cancel();
-    _lifecycle.dispose();
-    super.dispose();
-  }
-
-  /// Refreshes due labels right after each minute boundary, so a task turns
-  /// "overdue" at 18:00 and not up to a minute later.
-  void _scheduleTick() {
-    _ticker?.cancel();
-    _ticker = Timer(untilNextMinute(widget.clock()), _tick);
-  }
-
-  void _tick() {
-    if (!mounted) return;
-    // The list reads the clock on every build, so a rebuild is enough.
-    setState(() {});
-    _scheduleTick();
-  }
 
   void _openEditor([Task? task]) {
     Navigator.of(context).push(
@@ -66,19 +38,39 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _delete(Task task) {
-    store.remove(task);
+  void _openSettings() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SettingsScreen(settings: widget.settings),
+      ),
+    );
+  }
+
+  void _showUndo(String message, VoidCallback undo) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text('"${task.title}" silindi'),
-          action: SnackBarAction(
-            label: 'Geri al',
-            onPressed: () => store.restore(task),
-          ),
+          content: Text(message),
+          action: SnackBarAction(label: 'Geri al', onPressed: undo),
         ),
       );
+  }
+
+  void _delete(Task task) {
+    store.remove(task);
+    _showUndo('"${task.title}" silindi', () => store.restore(task));
+  }
+
+  void _toggle(Task task) {
+    final completing = !task.done;
+    store.toggleDone(task);
+    // When finished tasks leave the list, offer a way back in case the tap
+    // was a mistake.
+    if (completing &&
+        widget.settings.completedBehavior == CompletedBehavior.hide) {
+      _showUndo('"${task.title}" tamamlandı', () => store.toggleDone(task));
+    }
   }
 
   Widget _tile(Task task, DateTime now) {
@@ -95,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: TaskTile(
         task: task,
         now: now,
-        onToggle: () => store.toggleDone(task),
+        onToggle: () => _toggle(task),
         onTap: () => _openEditor(task),
       ),
     );
@@ -104,52 +96,113 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Yapılacaklar')),
+      appBar: AppBar(
+        title: const Text('Yapılacaklar'),
+        actions: [
+          IconButton(
+            tooltip: 'Ayarlar',
+            onPressed: _openSettings,
+            icon: const Icon(Icons.settings_outlined),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openEditor,
         tooltip: 'Yeni görev',
         child: const Icon(Icons.add),
       ),
-      body: ListenableBuilder(
-        listenable: store,
-        builder: (context, _) {
-          final open = store.openTasks;
-          final done = store.doneTasks;
-          final now = widget.clock();
+      body: MinuteTicker(
+        clock: widget.clock,
+        builder: (context, now) => ListenableBuilder(
+          listenable: Listenable.merge([store, widget.settings]),
+          builder: (context, _) => _buildList(now),
+        ),
+      ),
+    );
+  }
 
-          if (open.isEmpty && done.isEmpty) {
-            return const _EmptyState();
-          }
+  Widget _buildList(DateTime now) {
+    // Today's list: open tasks plus those finished today. Anything finished
+    // on an earlier day has dropped off, so each day starts with only what
+    // is still to do.
+    final today = store.tasksForDay(now);
+    final strike =
+        widget.settings.completedBehavior == CompletedBehavior.strikeThrough;
+    final visible = strike ? today : today.where((t) => !t.done).toList();
+    final doneToday = today.where((t) => t.done).length;
 
-          return ListView(
-            padding: const EdgeInsets.only(bottom: 96),
-            children: [
-              ...open.map((t) => _tile(t, now)),
-              if (open.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Center(child: Text('Hepsi tamam 🎉')),
-                ),
-              if (done.isNotEmpty) ...[
-                ListTile(
-                  title: Text('Tamamlananlar (${done.length})'),
-                  trailing: Icon(
-                    _showDone ? Icons.expand_less : Icons.expand_more,
-                  ),
-                  onTap: () => setState(() => _showDone = !_showDone),
-                ),
-                if (_showDone) ...done.map((t) => _tile(t, now)),
-              ],
-            ],
-          );
-        },
+    if (visible.isEmpty) {
+      return doneToday == 0
+          ? const _EmptyState(
+              icon: Icons.check_circle_outline,
+              title: 'Henüz görev yok',
+              subtitle: '+ ile ilk görevini ekle',
+            )
+          : _EmptyState(
+              icon: Icons.celebration_outlined,
+              title: 'Hepsi tamam 🎉',
+              subtitle: 'Bugün $doneToday görev tamamladın',
+            );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 96),
+      children: [
+        if (strike && doneToday > 0)
+          _Progress(done: doneToday, total: today.length),
+        ...visible.map((t) => _tile(t, now)),
+      ],
+    );
+  }
+}
+
+class _Progress extends StatelessWidget {
+  const _Progress({required this.done, required this.total});
+
+  final int done;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Bugün $done / $total tamamlandı',
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: done / total,
+              minHeight: 6,
+              // The value is announced as a percentage; the line above
+              // already says "x / y".
+              semanticsLabel: 'Bugünkü ilerleme',
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState();
+  const _EmptyState({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -158,16 +211,12 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.check_circle_outline,
-            size: 64,
-            color: theme.colorScheme.outline,
-          ),
+          Icon(icon, size: 64, color: theme.colorScheme.outline),
           const SizedBox(height: 12),
-          Text('Henüz görev yok', style: theme.textTheme.titleMedium),
+          Text(title, style: theme.textTheme.titleMedium),
           const SizedBox(height: 4),
           Text(
-            '+ ile ilk görevini ekle',
+            subtitle,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

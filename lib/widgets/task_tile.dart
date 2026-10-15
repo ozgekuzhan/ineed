@@ -9,33 +9,40 @@ class TaskTile extends StatelessWidget {
     super.key,
     required this.task,
     required this.now,
-    required this.onToggle,
-    required this.onTap,
+    this.done,
+    this.onToggle,
+    this.onTap,
   });
 
   final Task task;
 
   /// Current time, passed in so the list can refresh labels as time passes.
   final DateTime now;
-  final VoidCallback onToggle;
-  final VoidCallback onTap;
+
+  /// Whether to draw the task as done. Defaults to its current state; the
+  /// history view passes the state it had on the day being shown.
+  final bool? done;
+
+  /// Null makes the tile read-only.
+  final VoidCallback? onToggle;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
+    final scheme = Theme.of(context).colorScheme;
     final due = task.dueDate;
+    final isDone = done ?? task.done;
 
     return ListTile(
       onTap: onTap,
       leading: Checkbox(
-        value: task.done,
-        onChanged: (_) => onToggle(),
+        value: isDone,
+        onChanged: onToggle == null ? null : (_) => onToggle!(),
         shape: const CircleBorder(),
       ),
       title: Text(
         task.title,
-        style: task.done
+        style: isDone
             ? TextStyle(
                 decoration: TextDecoration.lineThrough,
                 color: scheme.onSurfaceVariant,
@@ -47,7 +54,7 @@ class TaskTile extends StatelessWidget {
           : Text.rich(
               TextSpan(
                 children: [
-                  if (due != null) _dueSpan(due, scheme),
+                  if (due != null) _dueSpan(due, isDone, scheme),
                   if (due != null && task.note.isNotEmpty)
                     const TextSpan(text: '  ·  '),
                   if (task.note.isNotEmpty) TextSpan(text: task.note),
@@ -56,7 +63,7 @@ class TaskTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-      trailing: task.done
+      trailing: isDone
           ? null
           : Semantics(
               label: '${task.priority.label} öncelik',
@@ -72,10 +79,10 @@ class TaskTile extends StatelessWidget {
     );
   }
 
-  InlineSpan _dueSpan(DateTime due, ColorScheme scheme) {
+  InlineSpan _dueSpan(DateTime due, bool isDone, ColorScheme scheme) {
     final text = dueText(due, now);
     // Done tasks only show the date, without urgency colors.
-    if (task.done) return TextSpan(text: text);
+    if (isDone) return TextSpan(text: text);
 
     final status = dueStatus(due, now);
     final label = status == DueStatus.overdue ? 'Gecikti · $text' : text;

@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ineed/data/task_repository.dart';
 import 'package:ineed/main.dart';
 import 'package:ineed/models/task.dart';
+import 'package:ineed/state/settings_store.dart';
 import 'package:ineed/state/task_store.dart';
 
 /// Repository whose saves finish in whatever order the test chooses.
@@ -137,7 +138,7 @@ void main() {
     final repo = _ControlledRepository();
     final store = TaskStore(repo);
     await store.load();
-    await tester.pumpWidget(IneedApp(store: store));
+    await tester.pumpWidget(IneedApp(store: store, settings: SettingsStore()));
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
@@ -157,7 +158,7 @@ void main() {
     final store = TaskStore(TaskRepository());
     await store.load();
     await store.add(title: 'Ancient', dueDate: DateTime(2020, 3, 1, 9));
-    await tester.pumpWidget(IneedApp(store: store));
+    await tester.pumpWidget(IneedApp(store: store, settings: SettingsStore()));
 
     await tester.tap(find.text('Ancient'));
     await tester.pumpAndSettle();

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ineed/data/task_repository.dart';
 import 'package:ineed/main.dart';
 import 'package:ineed/models/task.dart';
+import 'package:ineed/state/settings_store.dart';
 import 'package:ineed/state/task_store.dart';
 
 void main() {
@@ -35,7 +36,7 @@ void main() {
         title: id,
         priority: p,
         dueDate: due,
-        done: done,
+        completedAt: done ? created : null,
         createdAt: created,
       );
       final tasks = [
@@ -70,7 +71,7 @@ void main() {
   testWidgets('add a task through the UI', (tester) async {
     final store = TaskStore(TaskRepository());
     await store.load();
-    await tester.pumpWidget(IneedApp(store: store));
+    await tester.pumpWidget(IneedApp(store: store, settings: SettingsStore()));
 
     expect(find.text('Henüz görev yok'), findsOneWidget);
 

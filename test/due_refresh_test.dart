@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ineed/data/task_repository.dart';
 import 'package:ineed/main.dart';
+import 'package:ineed/state/settings_store.dart';
 import 'package:ineed/state/task_store.dart';
 
 void main() {
@@ -20,12 +21,13 @@ void main() {
   // The store is created inside each test body (not in setUp) so its
   // futures belong to the test's fake-async zone.
   Future<void> createStore() async {
-    store = TaskStore(TaskRepository());
+    store = TaskStore(TaskRepository(), clock: () => now);
     await store.load();
   }
 
-  Future<void> pumpApp(WidgetTester tester) =>
-      tester.pumpWidget(IneedApp(store: store, clock: () => now));
+  Future<void> pumpApp(WidgetTester tester) => tester.pumpWidget(
+    IneedApp(store: store, settings: SettingsStore(), clock: () => now),
+  );
 
   testWidgets('label turns overdue when the minute passes', (tester) async {
     await createStore();
@@ -70,8 +72,6 @@ void main() {
     await store.add(title: 'Huur', dueDate: DateTime(2026, 10, 1, 9));
     await store.toggleDone(store.openTasks.single);
     await pumpApp(tester);
-    await tester.tap(find.textContaining('Tamamlananlar'));
-    await tester.pump();
 
     expect(find.text('Huur'), findsOneWidget);
     expect(find.textContaining('Gecikti'), findsNothing);

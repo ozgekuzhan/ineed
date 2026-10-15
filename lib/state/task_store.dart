@@ -5,9 +5,10 @@ import '../data/task_repository.dart';
 import '../models/task.dart';
 
 class TaskStore extends ChangeNotifier {
-  TaskStore(this._repository);
+  TaskStore(this._repository, {this._clock = DateTime.now});
 
   final TaskRepository _repository;
+  final DateTime Function() _clock;
   final _uuid = const Uuid();
   List<Task> _tasks = [];
   Future<void> _saving = Future.value();
@@ -17,6 +18,17 @@ class TaskStore extends ChangeNotifier {
 
   List<Task> get doneTasks =>
       (_tasks.where((t) => t.done).toList()..sort(Task.compare));
+
+  /// The list as it stood on [day]: tasks that existed by then and weren't
+  /// done before it began. Tasks ticked off that day are included (shown
+  /// struck through); they keep their place instead of sinking to the end.
+  List<Task> tasksForDay(DateTime day) =>
+      (_tasks.where((t) => t.isOnListOf(day)).toList()
+        ..sort((a, b) => Task.compare(a, b, doneLast: false)));
+
+  /// Number of tasks finished during [day].
+  int completedOn(DateTime day) =>
+      _tasks.where((t) => t.wasCompletedOn(day)).length;
 
   Future<void> load() async {
     _tasks = await _repository.load();
@@ -36,7 +48,7 @@ class TaskStore extends ChangeNotifier {
         note: note,
         priority: priority,
         dueDate: dueDate,
-        createdAt: DateTime.now(),
+        createdAt: _clock(),
       ),
     );
     return _commit();
@@ -54,7 +66,11 @@ class TaskStore extends ChangeNotifier {
   Future<void> toggleDone(Task task) {
     final current = _tasks.where((t) => t.id == task.id).firstOrNull;
     if (current == null) return Future.value();
-    return update(current.copyWith(done: !current.done));
+    return update(
+      current.done
+          ? current.copyWith(clearCompletedAt: true)
+          : current.copyWith(completedAt: _clock()),
+    );
   }
 
   Future<void> remove(Task task) {
