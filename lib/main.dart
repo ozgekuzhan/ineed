@@ -4,6 +4,8 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'data/event_repository.dart';
 import 'data/task_repository.dart';
+import 'notifications/notification_sync.dart';
+import 'notifications/notifier.dart';
 import 'screens/root_screen.dart';
 import 'state/event_store.dart';
 import 'state/settings_store.dart';
@@ -16,6 +18,15 @@ Future<void> main() async {
   final events = EventStore(EventRepository());
   final settings = SettingsStore();
   await Future.wait([store.load(), events.load(), settings.load()]);
+
+  final notifier = LocalNotifier();
+  try {
+    await notifier.init();
+    NotificationSync(tasks: store, events: events, notifier: notifier).start();
+  } catch (e) {
+    // The app works without reminders; don't block start-up on them.
+    debugPrint('Reminders unavailable: $e');
+  }
   runApp(IneedApp(store: store, events: events, settings: settings));
 }
 

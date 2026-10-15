@@ -84,11 +84,14 @@ Her özellik **tek tek** yapılır. Her özellik bittiğinde:
 - Boş durum ekranı, açık/koyu tema ayarı
 - Uygulama ikonu taslağı
 
-### Gün 3 — Bildirimler
-- `flutter_local_notifications` + `timezone` kurulumu, iOS izin isteği
-- Her görev için hatırlatıcı seçimi: son tarihte · 1 saat önce · 1 gün önce
-- Görev tamamlanınca/silinince bildirimin iptali, düzenlenince yeniden planlanması
-- Sabah özeti (opsiyonel): her sabah 08:30'da "bugün X görevin var"
+### Gün 3 — Bildirimler ✅
+- Görevler: son tarihten **1 gün önce**, **1 saat önce** ve **son tarihte**
+- Doğum günü / etkinlik: **3 gün önce 09:00** ve **gününde 09:00** (saatli etkinlikte 1 saat önce)
+- İzin, ilk kez tarihli bir şey eklenince istenir (açılışta değil)
+- Her değişiklikte ve uygulamaya dönüşte yeniden planlanır; iOS sınırı (64) nedeniyle en yakın 60 hatırlatma
+- Tamamlanan/silinen görevin hatırlatmaları kalkar; bildirim merkezindekiler silinmez
+- Seyahatte cihazın saat dilimine uyar
+- Kalan: sabah özeti, ayarlardan hatırlatma saatini değiştirme, bildirime dokununca ilgili kayda gitme
 
 ### Gün 4 — iOS Widget (1. kısım)
 - Xcode'da Widget Extension hedefi, App Group (`group.com.ozgekuzhan.ineed`)

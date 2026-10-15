@@ -177,6 +177,15 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 ),
             ],
           ),
+          if (_dueDate != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                '1 gün önce, 1 saat önce ve son tarihte hatırlatılır.',
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: scheme.onSurfaceVariant),
+              ),
+            ),
           const SizedBox(height: 24),
           TextField(
             controller: _note,
