@@ -108,13 +108,19 @@ void main() {
     await tester.tap(find.byTooltip('Yeni doğum günü / etkinlik'));
     await tester.pumpAndSettle();
 
-    // The tapped day is already filled in.
-    expect(find.text('20 Ekim 2026'), findsOneWidget);
-    await tester.enterText(find.byType(TextField).first, 'Zeynep');
-    await tester.tap(find.text('Doğum yılını bilmiyorum'));
-    await tester.pump();
-    // Turning the year off keeps the day; the year is no longer shown.
+    // The tapped day is filled in. It says nothing about the birth year, so
+    // the year starts as unknown (no wrong ages later).
     expect(find.text('20 Ekim'), findsOneWidget);
+    expect(
+      tester
+          .widget<SwitchListTile>(
+            find.widgetWithText(SwitchListTile, 'Doğum yılını bilmiyorum'),
+          )
+          .value,
+      true,
+    );
+    await tester.enterText(find.byType(TextField).first, 'Zeynep');
+    await tester.pump();
     await tester.tap(find.text('Kaydet'));
     await tester.pumpAndSettle();
 

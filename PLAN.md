@@ -93,6 +93,10 @@ Her özellik **tek tek** yapılır. Her özellik bittiğinde:
 - Seyahatte cihazın saat dilimine uyar
 - Kalan: sabah özeti, ayarlardan hatırlatma saatini değiştirme, bildirime dokununca ilgili kayda gitme
 
+**Genel kontrol (tüm kod, yapıldı)** — bulunan ve düzeltilen sorunlar:
+- Bildirim sistemi uygulama açılışını geciktirebiliyordu → ilk ekrandan sonra arka planda başlıyor
+- Takvimde güne dokunup doğum günü eklerken doğum yılı o yıl sanılıyordu (yanlış yaş) → yıl "bilinmiyor" başlar
+
 ### Gün 4 — iOS Widget (1. kısım)
 - Xcode'da Widget Extension hedefi, App Group (`group.com.ozgekuzhan.ineed`)
 - `home_widget` ile Flutter → widget veri aktarımı (ilk 3–5 açık görev)

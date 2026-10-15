@@ -31,7 +31,9 @@ class _EventEditScreenState extends State<EventEditScreen> {
   late final _note = TextEditingController(text: widget.event?.note);
   late EventKind _kind = widget.event?.kind ?? EventKind.birthday;
   late DateTime? _date = widget.event?.date ?? widget.initialDate;
-  late bool _hasYear = widget.event?.hasYear ?? true;
+  // A day tapped in the calendar gives only day and month for a birthday;
+  // its year (this year) isn't the birth year.
+  late bool _hasYear = widget.event?.hasYear ?? (widget.initialDate == null);
   late TimeOfDay? _time = (widget.event?.hasTime ?? false)
       ? TimeOfDay.fromDateTime(widget.event!.date)
       : null;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -18,16 +20,21 @@ Future<void> main() async {
   final events = EventStore(EventRepository());
   final settings = SettingsStore();
   await Future.wait([store.load(), events.load(), settings.load()]);
+  runApp(IneedApp(store: store, events: events, settings: settings));
+  // After the first frame is on its way, so reminders can never delay or
+  // block opening the app.
+  unawaited(_startReminders(store, events));
+}
 
-  final notifier = LocalNotifier();
+Future<void> _startReminders(TaskStore tasks, EventStore events) async {
   try {
+    final notifier = LocalNotifier();
     await notifier.init();
-    NotificationSync(tasks: store, events: events, notifier: notifier).start();
+    NotificationSync(tasks: tasks, events: events, notifier: notifier).start();
   } catch (e) {
-    // The app works without reminders; don't block start-up on them.
+    // The app works without reminders.
     debugPrint('Reminders unavailable: $e');
   }
-  runApp(IneedApp(store: store, events: events, settings: settings));
 }
 
 class IneedApp extends StatelessWidget {
