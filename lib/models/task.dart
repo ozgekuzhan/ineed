@@ -27,9 +27,6 @@ class Task {
   final bool done;
   final DateTime createdAt;
 
-  bool isOverdue(DateTime now) =>
-      !done && dueDate != null && dueDate!.isBefore(now);
-
   Task copyWith({
     String? title,
     String? note,

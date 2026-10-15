@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../models/due_label.dart';
 import '../models/task.dart';
 import 'priority_style.dart';
 
@@ -8,18 +8,22 @@ class TaskTile extends StatelessWidget {
   const TaskTile({
     super.key,
     required this.task,
+    required this.now,
     required this.onToggle,
     required this.onTap,
   });
 
   final Task task;
+
+  /// Current time, passed in so the list can refresh labels as time passes.
+  final DateTime now;
   final VoidCallback onToggle;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final overdue = task.isOverdue(DateTime.now());
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final due = task.dueDate;
 
     return ListTile(
@@ -40,14 +44,17 @@ class TaskTile extends StatelessWidget {
       ),
       subtitle: due == null && task.note.isEmpty
           ? null
-          : Text(
-              [
-                if (due != null) DateFormat('d MMM, HH:mm', 'tr').format(due),
-                if (task.note.isNotEmpty) task.note,
-              ].join(' · '),
+          : Text.rich(
+              TextSpan(
+                children: [
+                  if (due != null) _dueSpan(due, scheme),
+                  if (due != null && task.note.isNotEmpty)
+                    const TextSpan(text: '  ·  '),
+                  if (task.note.isNotEmpty) TextSpan(text: task.note),
+                ],
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: overdue ? TextStyle(color: scheme.error) : null,
             ),
       trailing: task.done
           ? null
@@ -62,6 +69,41 @@ class TaskTile extends StatelessWidget {
                 ),
               ),
             ),
+    );
+  }
+
+  InlineSpan _dueSpan(DateTime due, ColorScheme scheme) {
+    final text = dueText(due, now);
+    // Done tasks only show the date, without urgency colors.
+    if (task.done) return TextSpan(text: text);
+
+    final status = dueStatus(due, now);
+    final label = status == DueStatus.overdue ? 'Gecikti · $text' : text;
+    final color = switch (status) {
+      DueStatus.overdue => scheme.error,
+      DueStatus.today => scheme.primary,
+      DueStatus.tomorrow || DueStatus.later => scheme.onSurfaceVariant,
+    };
+    final icon = switch (status) {
+      DueStatus.overdue => Icons.error_outline,
+      DueStatus.today => Icons.today,
+      DueStatus.tomorrow || DueStatus.later => Icons.event,
+    };
+    final weight = status == DueStatus.later
+        ? FontWeight.normal
+        : FontWeight.w600;
+    return TextSpan(
+      style: TextStyle(color: color, fontWeight: weight),
+      children: [
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Icon(icon, size: 14, color: color),
+          ),
+        ),
+        TextSpan(text: label),
+      ],
     );
   }
 }

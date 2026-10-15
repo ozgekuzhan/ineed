@@ -55,7 +55,12 @@ Her özellik **tek tek** yapılır. Her özellik bittiğinde:
 - Öncelik noktası ekran okuyucuda (VoiceOver) okunmuyordu → etiket eklendi
 
 ### Gün 2 — Arayüz cilası
-- Gecikmiş / bugün / yarın etiketleri ve renkleri
+- ✅ Gecikmiş / bugün / yarın etiketleri ve renkleri (dakika dolunca ve uygulamaya dönünce kendiliğinden güncellenir)
+
+  **Kontrol (yapıldı)** — bulunan ve düzeltilen sorunlar:
+  - Yaz saati bitiş gecesi (Ekim'in son pazarı 02:00–03:00) zamanlayıcı −59 dk bekleme hesaplıyordu → bir saat boyunca boşa dönüp pil tüketirdi; bekleme artık saniyeden hesaplanıyor
+  - Bozuk veri yedeği her açılışta tekrar ekleniyordu → okunabilir kısım hemen kaydediliyor
+  - "Yarın" hesabı yaz saati günlerinde (23/25 saatlik günler) testle güvenceye alındı; CI testleri Amsterdam saat diliminde çalıştırıyor
 - Filtre: Tümü · Bugün · Yüksek öncelik
 - Boş durum ekranı, açık/koyu tema ayarı
 - Uygulama ikonu taslağı

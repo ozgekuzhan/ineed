@@ -10,10 +10,7 @@ class TaskStore extends ChangeNotifier {
   final TaskRepository _repository;
   final _uuid = const Uuid();
   List<Task> _tasks = [];
-  bool _loaded = false;
   Future<void> _saving = Future.value();
-
-  bool get loaded => _loaded;
 
   List<Task> get openTasks =>
       (_tasks.where((t) => !t.done).toList()..sort(Task.compare));
@@ -23,7 +20,6 @@ class TaskStore extends ChangeNotifier {
 
   Future<void> load() async {
     _tasks = await _repository.load();
-    _loaded = true;
     notifyListeners();
   }
 

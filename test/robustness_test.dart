@@ -47,6 +47,23 @@ void main() {
       expect(prefs.getString(backups.single), 'not json');
     });
 
+    test('backs up broken data only once', () async {
+      SharedPreferences.setMockInitialValues({'tasks_v1': 'not json'});
+      await TaskRepository().load();
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('tasks_v1'), '[]');
+
+      // Backup keys carry a millisecond stamp; make sure a second backup
+      // would get its own key instead of overwriting the first.
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      await TaskRepository().load();
+
+      final backups = prefs.getKeys().where(
+        (k) => k.startsWith('tasks_v1_unreadable_'),
+      );
+      expect(backups, hasLength(1));
+    });
+
     test('skips only the broken entry', () async {
       final good = Task(
         id: 'ok',

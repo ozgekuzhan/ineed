@@ -15,9 +15,12 @@ Future<void> main() async {
 }
 
 class IneedApp extends StatelessWidget {
-  const IneedApp({super.key, required this.store});
+  const IneedApp({super.key, required this.store, this.clock = DateTime.now});
 
   final TaskStore store;
+
+  /// Source of the current time; replaced in tests.
+  final DateTime Function() clock;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,7 @@ class IneedApp extends StatelessWidget {
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       theme: ThemeData(colorSchemeSeed: seed, brightness: Brightness.light),
       darkTheme: ThemeData(colorSchemeSeed: seed, brightness: Brightness.dark),
-      home: HomeScreen(store: store),
+      home: HomeScreen(store: store, clock: clock),
     );
   }
 }

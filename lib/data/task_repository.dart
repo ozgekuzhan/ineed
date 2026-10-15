@@ -36,6 +36,9 @@ class TaskRepository {
     if (hadErrors) {
       final stamp = DateTime.now().millisecondsSinceEpoch;
       await prefs.setString('$_backupPrefix$stamp', raw);
+      // Store the readable part right away, so the same broken data isn't
+      // backed up again on every launch.
+      await save(tasks);
     }
     return tasks;
   }

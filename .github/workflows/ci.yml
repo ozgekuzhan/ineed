@@ -19,5 +19,8 @@ jobs:
         run: dart format --output=none --set-exit-if-changed lib test
       - name: Analyze
         run: flutter analyze
+      # Run in the user's time zone so daylight-saving bugs show up.
       - name: Test
         run: flutter test
+        env:
+          TZ: Europe/Amsterdam
