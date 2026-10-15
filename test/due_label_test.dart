@@ -84,6 +84,13 @@ void main() {
       expect(dueText(DateTime(2026, 10, 13, 14, 30), now), 'Dün 14:30');
     });
 
+    test('non-relative always writes the date', () {
+      expect(
+        dueText(DateTime(2026, 10, 14, 18), now, relative: false),
+        '14 Eki Çar 18:00',
+      );
+    });
+
     test('same year shows weekday, other years show the year', () {
       expect(dueText(DateTime(2026, 10, 17, 18), now), '17 Eki Cmt 18:00');
       expect(dueText(DateTime(2027, 1, 3, 9), now), '3 Oca 2027 09:00');

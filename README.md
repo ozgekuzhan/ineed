@@ -4,6 +4,11 @@ Sade, kişisel bir yapılacaklar + doğum günü/etkinlik takvimi uygulaması (F
 
 Yol haritası ve gün gün plan: [PLAN.md](PLAN.md)
 
+![Ekranlar](docs/screenshots/00_genel_bakis.png)
+
+Ekran görüntüleri uygulamanın gerçek ekranlarından üretilir (örnek verilerle):
+`flutter test tool/screenshots --update-goldens && python3 tool/screenshots/frame.py`
+
 ## Özellikler
 
 - **Görevler**: öncelik (Yüksek/Orta/Düşük), not, son tarih; "Gecikti / Bugün / Yarın" etiketleri

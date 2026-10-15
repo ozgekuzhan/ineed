@@ -94,6 +94,7 @@ Her özellik **tek tek** yapılır. Her özellik bittiğinde:
 - ✅ Ayarlar → Hatırlatmalar: doğum günü/etkinlik hatırlatma saati seçilebilir (varsayılan 09:00); değişince tüm hatırlatmalar yeniden planlanır
 - ✅ Bildirime dokununca ilgili görev / takvim kaydı açılır (uygulama kapalıyken de); silinmişse kısa mesaj
 - ✅ Görev düzenleme ekranında "Tamamlandı olarak işaretle" (bildirimden gelince tek dokunuşla)
+- ✅ Geçmiş ekranında tarihler açık yazılıyor ("Gecikti · 13 Eki Sal 17:00"); "Bugün" gerçek bugünle karışıyordu
 - Kalan: sabah özeti
 
 **Genel kontrol (tüm kod, yapıldı)** — bulunan ve düzeltilen sorunlar:

@@ -125,7 +125,12 @@ class _DayList extends StatelessWidget {
           ),
         ),
         for (final t in tasks)
-          TaskTile(task: t, now: asOf, done: t.wasCompletedOn(day)),
+          TaskTile(
+            task: t,
+            now: asOf,
+            done: t.wasCompletedOn(day),
+            relativeDates: false,
+          ),
       ],
     );
   }

@@ -124,8 +124,10 @@ void main() {
       await tester.tap(find.text('11'));
       await tester.pumpAndSettle();
 
-      // Due 18:00 on the 11th: by the end of that day it was late.
-      expect(find.textContaining('Gecikti · Bugün 18:00'), findsOneWidget);
+      // Due 18:00 on the 11th: by the end of that day it was late. The date
+      // is written out; "Bugün" would read as the real today.
+      expect(find.textContaining('Gecikti · 11 Eki Paz 18:00'), findsOneWidget);
+      expect(find.textContaining('Bugün'), findsNothing);
     });
 
     testWidgets('history is read-only', (tester) async {

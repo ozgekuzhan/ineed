@@ -10,6 +10,7 @@ class TaskTile extends StatelessWidget {
     required this.task,
     required this.now,
     this.done,
+    this.relativeDates = true,
     this.onToggle,
     this.onTap,
   });
@@ -22,6 +23,9 @@ class TaskTile extends StatelessWidget {
   /// Whether to draw the task as done. Defaults to its current state; the
   /// history view passes the state it had on the day being shown.
   final bool? done;
+
+  /// "Bugün 18:00" style; false writes the date out (history view).
+  final bool relativeDates;
 
   /// Null makes the tile read-only.
   final VoidCallback? onToggle;
@@ -80,7 +84,7 @@ class TaskTile extends StatelessWidget {
   }
 
   InlineSpan _dueSpan(DateTime due, bool isDone, ColorScheme scheme) {
-    final text = dueText(due, now);
+    final text = dueText(due, now, relative: relativeDates);
     // Done tasks only show the date, without urgency colors.
     if (isDone) return TextSpan(text: text);
 
