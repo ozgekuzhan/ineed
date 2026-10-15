@@ -5,6 +5,7 @@ import '../state/settings_store.dart';
 import '../state/task_store.dart';
 import '../widgets/minute_ticker.dart';
 import '../widgets/task_tile.dart';
+import 'history_screen.dart';
 import 'settings_screen.dart';
 import 'task_edit_screen.dart';
 
@@ -34,6 +35,14 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         fullscreenDialog: task == null,
         builder: (_) => TaskEditScreen(store: store, task: task),
+      ),
+    );
+  }
+
+  void _openHistory() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => HistoryScreen(store: store, clock: widget.clock),
       ),
     );
   }
@@ -99,6 +108,11 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Yapılacaklar'),
         actions: [
+          IconButton(
+            tooltip: 'Geçmiş',
+            onPressed: _openHistory,
+            icon: const Icon(Icons.history),
+          ),
           IconButton(
             tooltip: 'Ayarlar',
             onPressed: _openSettings,

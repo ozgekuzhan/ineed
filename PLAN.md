@@ -68,6 +68,7 @@ Her özellik **tek tek** yapılır. Her özellik bittiğinde:
 
   **Kontrol (yapıldı)**:
   - İlerleme çubuğunun ekran okuyucu değeri geçersizdi; VoiceOver açıkken hataya yol açacaktı → düzeltildi
+- ✅ Geçmiş (Görevler → saat ikonu): takvimden gün seç, listenin o günkü hali görünür; o gün tamamlananlar üstü çizili, "x / y tamamlandı", tamamlanan günlerde nokta. Salt okunur.
 - Filtre: Tümü · Bugün · Yüksek öncelik
 - Boş durum ekranı, açık/koyu tema ayarı
 - Uygulama ikonu taslağı
