@@ -198,8 +198,51 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
               border: OutlineInputBorder(),
             ),
           ),
+          if (!_isNew) ...[
+            const SizedBox(height: 24),
+            FilledButton.tonalIcon(
+              onPressed: _toggleDone,
+              icon: Icon(_wasDone ? Icons.undo : Icons.check),
+              label: Text(
+                _wasDone
+                    ? 'Tamamlanmadı olarak işaretle'
+                    : 'Tamamlandı olarak işaretle',
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  bool get _wasDone => widget.task?.done ?? false;
+
+  /// Saves any edits, then flips done (e.g. straight from a reminder).
+  Future<void> _toggleDone() async {
+    if (_saving) return;
+    _saving = true;
+    final task = widget.task!;
+    final title = _title.text.trim();
+    // Both changes apply in memory right away; only the disk writes are
+    // awaited, so a failed write can't leave the task half-updated.
+    final writes = [
+      if (title.isNotEmpty)
+        widget.store.update(
+          task.copyWith(
+            title: title,
+            note: _note.text.trim(),
+            priority: _priority,
+            dueDate: _dueDate,
+            clearDueDate: _dueDate == null,
+          ),
+        ),
+      widget.store.toggleDone(task),
+    ];
+    try {
+      await Future.wait(writes);
+    } catch (e) {
+      debugPrint('Saving task failed: $e');
+    }
+    if (mounted) Navigator.of(context).pop();
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -18,6 +20,17 @@ abstract class Notifier {
 
 class LocalNotifier implements Notifier {
   final _plugin = FlutterLocalNotificationsPlugin();
+  final _taps = StreamController<String>.broadcast();
+
+  /// Payloads of reminders tapped while the app is running.
+  Stream<String> get taps => _taps.stream;
+
+  /// Payload of the reminder whose tap started the app, if any.
+  Future<String?> launchPayload() async {
+    final details = await _plugin.getNotificationAppLaunchDetails();
+    if (details == null || !details.didNotificationLaunchApp) return null;
+    return details.notificationResponse?.payload;
+  }
 
   /// Fallback if the device's time zone can't be read.
   static const _fallbackZone = 'Europe/Amsterdam';
@@ -37,6 +50,10 @@ class LocalNotifier implements Notifier {
         ),
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       ),
+      onDidReceiveNotificationResponse: (response) {
+        final payload = response.payload;
+        if (payload != null) _taps.add(payload);
+      },
     );
   }
 

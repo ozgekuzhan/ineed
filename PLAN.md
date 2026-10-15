@@ -92,7 +92,9 @@ Her özellik **tek tek** yapılır. Her özellik bittiğinde:
 - Tamamlanan/silinen görevin hatırlatmaları kalkar; bildirim merkezindekiler silinmez
 - Seyahatte cihazın saat dilimine uyar
 - ✅ Ayarlar → Hatırlatmalar: doğum günü/etkinlik hatırlatma saati seçilebilir (varsayılan 09:00); değişince tüm hatırlatmalar yeniden planlanır
-- Kalan: sabah özeti, bildirime dokununca ilgili kayda gitme
+- ✅ Bildirime dokununca ilgili görev / takvim kaydı açılır (uygulama kapalıyken de); silinmişse kısa mesaj
+- ✅ Görev düzenleme ekranında "Tamamlandı olarak işaretle" (bildirimden gelince tek dokunuşla)
+- Kalan: sabah özeti
 
 **Genel kontrol (tüm kod, yapıldı)** — bulunan ve düzeltilen sorunlar:
 - Bildirim sistemi uygulama açılışını geciktirebiliyordu → ilk ekrandan sonra arka planda başlıyor

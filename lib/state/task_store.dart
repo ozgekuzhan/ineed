@@ -27,6 +27,8 @@ class TaskStore extends ChangeNotifier {
       (_tasks.where((t) => t.isOnListOf(day)).toList()
         ..sort((a, b) => Task.compare(a, b, doneLast: false)));
 
+  Task? byId(String id) => _tasks.where((t) => t.id == id).firstOrNull;
+
   /// Number of tasks finished during [day].
   int completedOn(DateTime day) =>
       _tasks.where((t) => t.wasCompletedOn(day)).length;
@@ -65,7 +67,7 @@ class TaskStore extends ChangeNotifier {
   /// Flips the done state of the stored task with [task]'s id, so a stale
   /// copy held by the UI can't overwrite newer edits.
   Future<void> toggleDone(Task task) {
-    final current = _tasks.where((t) => t.id == task.id).firstOrNull;
+    final current = byId(task.id);
     if (current == null) return Future.value();
     return update(
       current.done

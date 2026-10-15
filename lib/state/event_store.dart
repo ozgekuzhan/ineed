@@ -18,6 +18,8 @@ class EventStore extends ChangeNotifier {
 
   List<Event> get all => List.unmodifiable(_events);
 
+  Event? byId(String id) => _events.where((e) => e.id == id).firstOrNull;
+
   Future<void> load() async {
     _events = await _repository.load();
     notifyListeners();
