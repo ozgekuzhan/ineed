@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../screens/event_edit_screen.dart';
 import '../screens/task_edit_screen.dart';
 import '../state/event_store.dart';
@@ -62,7 +63,9 @@ class NotificationRouter {
     if (screen == null) {
       if (kind == 'task' || kind == 'event') {
         messengerKey.currentState?.showSnackBar(
-          const SnackBar(content: Text('Bu kayıt artık yok (silinmiş).')),
+          SnackBar(
+            content: Text(AppLocalizations.of(navigator.context).itemGone),
+          ),
         );
       }
       return;

@@ -132,6 +132,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('09:00'), findsOneWidget);
 
+    // Below the language section; scroll it into view first.
+    await tester.ensureVisible(find.text('Doğum günü ve etkinlik saati'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Doğum günü ve etkinlik saati'));
     await tester.pumpAndSettle();
     // Switch the picker to typing and enter 07:30.

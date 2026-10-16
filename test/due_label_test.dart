@@ -1,9 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'package:flutter/widgets.dart';
+import 'package:ineed/l10n/l10n.dart';
 import 'package:ineed/models/due_label.dart';
 
 void main() {
+  final tr = lookupAppLocalizations(const Locale('tr'));
   setUpAll(() => initializeDateFormatting('tr'));
 
   // Wednesday 14 October 2026, 15:00.
@@ -79,21 +82,21 @@ void main() {
 
   group('dueText', () {
     test('relative day names', () {
-      expect(dueText(DateTime(2026, 10, 14, 18), now), 'Bugün 18:00');
-      expect(dueText(DateTime(2026, 10, 15, 9, 5), now), 'Yarın 09:05');
-      expect(dueText(DateTime(2026, 10, 13, 14, 30), now), 'Dün 14:30');
+      expect(tr.dueText(DateTime(2026, 10, 14, 18), now), 'Bugün 18:00');
+      expect(tr.dueText(DateTime(2026, 10, 15, 9, 5), now), 'Yarın 09:05');
+      expect(tr.dueText(DateTime(2026, 10, 13, 14, 30), now), 'Dün 14:30');
     });
 
     test('non-relative always writes the date', () {
       expect(
-        dueText(DateTime(2026, 10, 14, 18), now, relative: false),
+        tr.dueText(DateTime(2026, 10, 14, 18), now, relative: false),
         '14 Eki Çar 18:00',
       );
     });
 
     test('same year shows weekday, other years show the year', () {
-      expect(dueText(DateTime(2026, 10, 17, 18), now), '17 Eki Cmt 18:00');
-      expect(dueText(DateTime(2027, 1, 3, 9), now), '3 Oca 2027 09:00');
+      expect(tr.dueText(DateTime(2026, 10, 17, 18), now), '17 Eki Cmt 18:00');
+      expect(tr.dueText(DateTime(2027, 1, 3, 9), now), '3 Oca 2027 09:00');
     });
   });
 }

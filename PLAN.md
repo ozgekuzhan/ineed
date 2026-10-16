@@ -95,6 +95,9 @@ Her özellik **tek tek** yapılır. Her özellik bittiğinde:
 - ✅ Bildirime dokununca ilgili görev / takvim kaydı açılır (uygulama kapalıyken de); silinmişse kısa mesaj
 - ✅ Görev düzenleme ekranında "Tamamlandı olarak işaretle" (bildirimden gelince tek dokunuşla)
 - ✅ Geçmiş ekranında tarihler açık yazılıyor ("Gecikti · 13 Eki Sal 17:00"); "Bugün" gerçek bugünle karışıyordu
+- ✅ **Dil seçeneği** (Ayarlar → Dil): Otomatik (telefonun dili) / Türkçe / English. Ekranlar, tarihler ("Wed 14 Oct"), çoğullar ("1 task / 2 tasks") ve bildirimler seçilen dilde. Telefon Türkçe ya da İngilizce değilse (ör. Felemenkçe) İngilizce açılır.
+  - Testler: iki dilde aynı anahtarlar; İngilizce modda hiçbir ekranda Türkçe karakter kalmadığını kontrol eden test
+  - Yeni dil eklemek: `lib/l10n/app_xx.arb` dosyası eklemek yeterli
 - Kalan: sabah özeti
 
 **Genel kontrol (tüm kod, yapıldı)** — bulunan ve düzeltilen sorunlar:

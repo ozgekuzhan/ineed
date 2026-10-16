@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 enum DueStatus { overdue, today, tomorrow, later }
 
 /// Calendar-day helpers use the date constructor instead of adding
@@ -31,26 +29,4 @@ DueStatus dueStatus(DateTime due, DateTime now) {
     return DueStatus.tomorrow;
   }
   return DueStatus.later;
-}
-
-/// Short Turkish text for a due date relative to [now], e.g. "Bugün 18:00",
-/// "Yarın 09:00", "Dün 14:30", "17 Eki Cum 18:00", "3 Oca 2027 09:00".
-///
-/// With [relative] false the date is always written out, for views of a
-/// past day where "Bugün" would be read as the real today.
-String dueText(DateTime due, DateTime now, {bool relative = true}) {
-  final time = DateFormat('HH:mm', 'tr').format(due);
-  if (!relative) {
-    final pattern = due.year == now.year ? 'd MMM EEE' : 'd MMM y';
-    return '${DateFormat(pattern, 'tr').format(due)} $time';
-  }
-  if (_sameDay(due, now)) return 'Bugün $time';
-  if (_sameDay(due, DateTime(now.year, now.month, now.day + 1))) {
-    return 'Yarın $time';
-  }
-  if (_sameDay(due, DateTime(now.year, now.month, now.day - 1))) {
-    return 'Dün $time';
-  }
-  final pattern = due.year == now.year ? 'd MMM EEE' : 'd MMM y';
-  return '${DateFormat(pattern, 'tr').format(due)} $time';
 }

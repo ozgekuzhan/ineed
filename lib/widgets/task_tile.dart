@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/due_label.dart';
 import '../models/task.dart';
 import 'priority_style.dart';
@@ -58,7 +59,7 @@ class TaskTile extends StatelessWidget {
           : Text.rich(
               TextSpan(
                 children: [
-                  if (due != null) _dueSpan(due, isDone, scheme),
+                  if (due != null) _dueSpan(context.l10n, due, isDone, scheme),
                   if (due != null && task.note.isNotEmpty)
                     const TextSpan(text: '  ·  '),
                   if (task.note.isNotEmpty) TextSpan(text: task.note),
@@ -70,7 +71,9 @@ class TaskTile extends StatelessWidget {
       trailing: isDone
           ? null
           : Semantics(
-              label: '${task.priority.label} öncelik',
+              label: context.l10n.priorityA11y(
+                context.l10n.priorityLabel(task.priority),
+              ),
               child: Container(
                 width: 10,
                 height: 10,
@@ -83,13 +86,18 @@ class TaskTile extends StatelessWidget {
     );
   }
 
-  InlineSpan _dueSpan(DateTime due, bool isDone, ColorScheme scheme) {
-    final text = dueText(due, now, relative: relativeDates);
+  InlineSpan _dueSpan(
+    AppLocalizations l10n,
+    DateTime due,
+    bool isDone,
+    ColorScheme scheme,
+  ) {
+    final text = l10n.dueText(due, now, relative: relativeDates);
     // Done tasks only show the date, without urgency colors.
     if (isDone) return TextSpan(text: text);
 
     final status = dueStatus(due, now);
-    final label = status == DueStatus.overdue ? 'Gecikti · $text' : text;
+    final label = status == DueStatus.overdue ? l10n.overdue(text) : text;
     final color = switch (status) {
       DueStatus.overdue => scheme.error,
       DueStatus.today => scheme.primary,

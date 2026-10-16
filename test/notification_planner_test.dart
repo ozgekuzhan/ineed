@@ -1,11 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'package:flutter/widgets.dart';
+import 'package:ineed/l10n/l10n.dart';
 import 'package:ineed/models/event.dart';
 import 'package:ineed/models/task.dart';
 import 'package:ineed/notifications/notification_planner.dart';
 
 void main() {
+  final tr = lookupAppLocalizations(const Locale('tr'));
   setUpAll(() => initializeDateFormatting('tr'));
 
   final now = DateTime(2026, 10, 14, 12);
@@ -22,7 +25,8 @@ void main() {
     List<Task> tasks = const [],
     List<Event> events = const [],
     DateTime? at,
-  }) => planNotifications(tasks: tasks, events: events, now: at ?? now);
+  }) =>
+      planNotifications(tasks: tasks, events: events, now: at ?? now, l10n: tr);
 
   group('tasks', () {
     test('a day before, an hour before, and at the deadline', () {
@@ -194,6 +198,7 @@ void main() {
         ),
       ],
       now: now,
+      l10n: tr,
       reminderTime: (hour: 20, minute: 15),
     );
     expect(p.take(2).map((n) => n.at), [

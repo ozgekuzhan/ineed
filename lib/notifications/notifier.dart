@@ -107,7 +107,8 @@ class LocalNotifier implements Notifier {
           iOS: DarwinNotificationDetails(),
           android: AndroidNotificationDetails(
             'reminders',
-            'Hatırlatıcılar',
+            // Fixed once the channel exists on the phone, so both languages.
+            'Hatırlatmalar · Reminders',
             importance: Importance.high,
             priority: Priority.high,
           ),

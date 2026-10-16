@@ -17,6 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ineed/data/event_repository.dart';
 import 'package:ineed/data/task_repository.dart';
+import 'package:ineed/l10n/l10n.dart';
 import 'package:ineed/main.dart';
 import 'package:ineed/models/event.dart';
 import 'package:ineed/models/task.dart';
@@ -61,9 +62,16 @@ void main() {
   late EventStore events;
   late SettingsStore settings;
 
+  /// Language of the current run, and a picker for sample-data texts.
+  var lang = AppLanguage.tr;
+  String t(String tr, String en) => lang == AppLanguage.tr ? tr : en;
+  AppLocalizations l10n() =>
+      lookupAppLocalizations(Locale(lang == AppLanguage.tr ? 'tr' : 'en'));
+
   setUpAll(() async {
     await _loadFonts();
     await initializeDateFormatting('tr');
+    await initializeDateFormatting('en');
   });
 
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -99,50 +107,51 @@ void main() {
     events = EventStore(EventRepository());
     settings = SettingsStore();
     await Future.wait([tasks.load(), events.load(), settings.load()]);
+    await settings.setLanguage(lang);
 
     // Finished on earlier days (show up in history only).
     final ov = await addTask(
-      "OV-chipkaart'a para yükle",
+      t("OV-chipkaart'a para yükle", 'Top up OV-chipkaart'),
       priority: Priority.low,
       created: DateTime(2026, 10, 11, 8),
     );
     await complete(ov, DateTime(2026, 10, 13, 8, 15));
     final kilit = await addTask(
-      'Bisiklet kilidi al',
+      t('Bisiklet kilidi al', 'Buy a bike lock'),
       created: DateTime(2026, 10, 12, 19),
     );
     await complete(kilit, DateTime(2026, 10, 13, 17, 40));
 
     // Today's list.
     await addTask(
-      'Kira ödemesi (huur)',
+      t('Kira ödemesi (huur)', 'Pay the rent (huur)'),
       priority: Priority.high,
       due: DateTime(2026, 10, 15, 18),
     );
     await addTask(
-      'Belastingdienst beyannamesi',
+      t('Belastingdienst beyannamesi', 'Belastingdienst tax return'),
       priority: Priority.high,
       due: DateTime(2026, 10, 13, 17),
-      note: 'DigiD ile giriş',
+      note: t('DigiD ile giriş', 'Log in with DigiD'),
     );
     await addTask(
-      'Fiets lastiğini tamir ettir',
+      t('Fiets lastiğini tamir ettir', 'Get the bike tyre fixed'),
       due: DateTime(2026, 10, 16, 12),
-      note: "Vondelstraat'taki dükkan",
+      note: t("Vondelstraat'taki dükkan", 'Shop on Vondelstraat'),
     );
     await addTask(
-      'Gemeente randevusu için evrak',
+      t('Gemeente randevusu için evrak', 'Papers for the gemeente'),
       due: DateTime(2026, 10, 20, 9, 30),
-      note: 'Pasaport + kira kontratı',
+      note: t('Pasaport + kira kontratı', 'Passport + rental contract'),
     );
-    final annem = await addTask('Annemi ara');
+    final annem = await addTask(t('Annemi ara', 'Call mum'));
     final ah = await addTask(
-      'Albert Heijn alışverişi',
+      t('Albert Heijn alışverişi', 'Albert Heijn groceries'),
       priority: Priority.low,
-      note: 'süt, yumurta, stroopwafel',
+      note: t('süt, yumurta, stroopwafel', 'milk, eggs, stroopwafels'),
     );
     await addTask(
-      'Spor salonu üyeliğini yenile',
+      t('Spor salonu üyeliğini yenile', 'Renew gym membership'),
       priority: Priority.low,
       due: DateTime(2026, 10, 31, 12),
     );
@@ -157,15 +166,15 @@ void main() {
     );
     await events.add(
       kind: EventKind.birthday,
-      title: 'Annem',
+      title: t('Annem', 'Mum'),
       date: DateTime(1962, 10, 17),
     );
     await events.add(
       kind: EventKind.event,
-      title: 'Concertgebouw konseri',
+      title: t('Concertgebouw konseri', 'Concertgebouw concert'),
       date: DateTime(2026, 10, 24, 20, 15),
       hasTime: true,
-      note: 'Biletler e-postada',
+      note: t('Biletler e-postada', 'Tickets in email'),
     );
     await events.add(
       kind: EventKind.birthday,
@@ -174,7 +183,7 @@ void main() {
     );
     await events.add(
       kind: EventKind.event,
-      title: 'Ayşe & Can evlilik yıldönümü',
+      title: t('Ayşe & Can evlilik yıldönümü', "Ayşe & Can's anniversary"),
       date: DateTime(2019, 11, 9),
       yearly: true,
     );
@@ -213,8 +222,10 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> shot(String name) =>
-      expectLater(find.byType(MaterialApp), matchesGoldenFile('raw/$name.png'));
+  Future<void> shot(String name) => expectLater(
+    find.byType(MaterialApp),
+    matchesGoldenFile('raw/${lang.name}/$name.png'),
+  );
 
   Future<void> run(WidgetTester tester, Future<void> Function() body) async {
     await seed();
@@ -226,66 +237,76 @@ void main() {
     }
   }
 
-  testWidgets('01 tasks', (tester) async {
-    await run(tester, () async {
-      await pumpApp(tester);
-      await shot('01_gorevler');
-    });
-  });
+  for (final language in [AppLanguage.tr, AppLanguage.en]) {
+    group(language.name, () {
+      setUp(() => lang = language);
 
-  testWidgets('02 tasks dark', (tester) async {
-    await run(tester, () async {
-      await pumpApp(tester, dark: true);
-      await shot('02_gorevler_koyu');
-    });
-  });
+      testWidgets('01 tasks', (tester) async {
+        await run(tester, () async {
+          await pumpApp(tester);
+          await shot('01_gorevler');
+        });
+      });
 
-  testWidgets('03 task editor', (tester) async {
-    await run(tester, () async {
-      await pumpApp(tester);
-      await tester.tap(find.text('Fiets lastiğini tamir ettir'));
-      await tester.pumpAndSettle();
-      await shot('03_gorev_duzenle');
-    });
-  });
+      testWidgets('02 tasks dark', (tester) async {
+        await run(tester, () async {
+          await pumpApp(tester, dark: true);
+          await shot('02_gorevler_koyu');
+        });
+      });
 
-  testWidgets('04 history', (tester) async {
-    await run(tester, () async {
-      await pumpApp(tester);
-      await tester.tap(find.byTooltip('Geçmiş'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('13'));
-      await tester.pumpAndSettle();
-      await shot('04_gecmis');
-    });
-  });
+      testWidgets('03 task editor', (tester) async {
+        await run(tester, () async {
+          await pumpApp(tester);
+          await tester.tap(
+            find.text(
+              t('Fiets lastiğini tamir ettir', 'Get the bike tyre fixed'),
+            ),
+          );
+          await tester.pumpAndSettle();
+          await shot('03_gorev_duzenle');
+        });
+      });
 
-  testWidgets('05 calendar', (tester) async {
-    await run(tester, () async {
-      await pumpApp(tester);
-      await tester.tap(find.text('Takvim'));
-      await tester.pumpAndSettle();
-      await shot('05_takvim');
-    });
-  });
+      testWidgets('04 history', (tester) async {
+        await run(tester, () async {
+          await pumpApp(tester);
+          await tester.tap(find.byTooltip(l10n().history));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('13'));
+          await tester.pumpAndSettle();
+          await shot('04_gecmis');
+        });
+      });
 
-  testWidgets('06 birthday editor', (tester) async {
-    await run(tester, () async {
-      await pumpApp(tester);
-      await tester.tap(find.text('Takvim'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Annem'));
-      await tester.pumpAndSettle();
-      await shot('06_dogum_gunu');
-    });
-  });
+      testWidgets('05 calendar', (tester) async {
+        await run(tester, () async {
+          await pumpApp(tester);
+          await tester.tap(find.text(l10n().tabCalendar));
+          await tester.pumpAndSettle();
+          await shot('05_takvim');
+        });
+      });
 
-  testWidgets('07 settings', (tester) async {
-    await run(tester, () async {
-      await pumpApp(tester);
-      await tester.tap(find.byTooltip('Ayarlar'));
-      await tester.pumpAndSettle();
-      await shot('07_ayarlar');
+      testWidgets('06 birthday editor', (tester) async {
+        await run(tester, () async {
+          await pumpApp(tester);
+          await tester.tap(find.text(l10n().tabCalendar));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text(t('Annem', 'Mum')));
+          await tester.pumpAndSettle();
+          await shot('06_dogum_gunu');
+        });
+      });
+
+      testWidgets('07 settings', (tester) async {
+        await run(tester, () async {
+          await pumpApp(tester);
+          await tester.tap(find.byTooltip(l10n().settings));
+          await tester.pumpAndSettle();
+          await shot('07_ayarlar');
+        });
+      });
     });
-  });
+  }
 }

@@ -1,0 +1,201 @@
+{
+  "@@locale": "en",
+  "tabTasks": "Tasks",
+  "tabCalendar": "Calendar",
+  "tasksTitle": "To-do",
+  "history": "History",
+  "settings": "Settings",
+  "newTask": "New task",
+  "editTask": "Edit task",
+  "save": "Save",
+  "undo": "Undo",
+  "taskDeleted": "\"{title}\" deleted",
+  "@taskDeleted": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "taskCompleted": "\"{title}\" completed",
+  "@taskCompleted": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "emptyTasksTitle": "No tasks yet",
+  "emptyTasksHint": "Tap + to add your first task",
+  "allDoneTitle": "All done 🎉",
+  "allDoneSubtitle": "{count, plural, =1{You finished 1 task today} other{You finished {count} tasks today}}",
+  "@allDoneSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "todayProgress": "Today {done} / {total} done",
+  "@todayProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "todayProgressLabel": "Today's progress",
+  "doneOfTotal": "{done} / {total} done",
+  "@doneOfTotal": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "historyEmptyDay": "No tasks were on the list this day",
+  "dueToday": "Today {time}",
+  "@dueToday": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "dueTomorrow": "Tomorrow {time}",
+  "@dueTomorrow": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "dueYesterday": "Yesterday {time}",
+  "@dueYesterday": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "overdue": "Overdue · {when}",
+  "@overdue": {
+    "placeholders": {
+      "when": {}
+    }
+  },
+  "priorityHigh": "High",
+  "priorityMedium": "Medium",
+  "priorityLow": "Low",
+  "priorityA11y": "{priority} priority",
+  "@priorityA11y": {
+    "placeholders": {
+      "priority": {}
+    }
+  },
+  "taskTitleLabel": "What needs doing?",
+  "priority": "Priority",
+  "dueDate": "Due date",
+  "pickDate": "Pick a date",
+  "removeDate": "Remove date",
+  "taskReminderHint": "Reminders 1 day before, 1 hour before and at the due time.",
+  "note": "Note",
+  "markDone": "Mark as done",
+  "markNotDone": "Mark as not done",
+  "itemGone": "This item no longer exists (deleted).",
+  "upcoming": "Upcoming",
+  "newEntryTooltip": "New birthday / event",
+  "calendarEmpty": "Nothing saved yet.\nTap + to add a birthday or event.",
+  "dayEmpty": "Nothing on this day.",
+  "turnsAge": "turns {age}",
+  "@turnsAge": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      }
+    }
+  },
+  "daysAgo": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inDays": "{count, plural, =1{in 1 day} other{in {count} days}}",
+  "@inDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "today": "Today",
+  "tomorrow": "Tomorrow",
+  "monthView": "Month",
+  "birthday": "Birthday",
+  "event": "Event",
+  "newEntry": "New entry",
+  "edit": "Edit",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "deleteConfirmTitle": "Delete?",
+  "deleteConfirmBody": "\"{title}\" will be removed from the calendar.",
+  "@deleteConfirmBody": {
+    "placeholders": {
+      "title": {}
+    }
+  },
+  "birthdayNameLabel": "Whose birthday?",
+  "eventNameLabel": "Event name",
+  "birthDate": "Date of birth",
+  "date": "Date",
+  "unknownBirthYear": "I don't know the birth year",
+  "addTime": "Add a time",
+  "repeatYearly": "Repeat every year",
+  "repeatYearlyHint": "Like anniversaries",
+  "eventReminderHint": "Reminders 3 days before and on the day at {time} (change it in Settings).",
+  "@eventReminderHint": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "timedEventReminderHint": "Reminders 3 days before at {time} and 1 hour before it starts.",
+  "@timedEventReminderHint": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "completedSection": "Completed tasks",
+  "strikeThrough": "Keep them, struck through",
+  "strikeThroughHint": "They stay on the list all day, so you see what you've done.",
+  "hideCompleted": "Remove them from the list",
+  "hideCompletedHint": "They leave the list as soon as you tick them.",
+  "completedFooter": "The next day only unfinished tasks stay on the list. You can see past days in History.",
+  "remindersSection": "Reminders",
+  "reminderTimeTitle": "Birthday and event time",
+  "reminderTimeSubtitle": "3 days before and on the day, at this time",
+  "reminderTimePicker": "Reminder time",
+  "remindersFooter": "Tasks are reminded 1 day before, 1 hour before and at the due time. Events with a time are reminded 1 hour before.",
+  "languageSection": "Language",
+  "languageSystem": "Automatic (phone language)",
+  "notifDueTomorrow": "Due tomorrow {time}",
+  "@notifDueTomorrow": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "notifOneHourLeft": "1 hour left · {time}",
+  "@notifOneHourLeft": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "notifDueNow": "Due now",
+  "notifBirthdayIn3Days": "Birthday in 3 days",
+  "notifIn3Days": "In 3 days",
+  "notifBirthdayToday": "Birthday today! 🎉",
+  "notifInOneHour": "In 1 hour · {time}",
+  "@notifInOneHour": {
+    "placeholders": {
+      "time": {}
+    }
+  }
+}

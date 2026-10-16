@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../l10n/l10n.dart';
 import '../models/dates.dart';
 import '../state/task_store.dart';
 import '../widgets/minute_ticker.dart';
@@ -32,7 +32,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Geçmiş')),
+      appBar: AppBar(title: Text(context.l10n.history)),
       // Keeps "today" right if the screen stays open past midnight.
       body: MinuteTicker(
         clock: widget.clock,
@@ -51,12 +51,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
       slivers: [
         SliverToBoxAdapter(
           child: TableCalendar<void>(
-            locale: 'tr',
+            locale: context.l10n.localeName,
             firstDay: DateTime(2020),
             lastDay: today,
             focusedDay: _focused.isAfter(today) ? today : _focused,
             startingDayOfWeek: StartingDayOfWeek.monday,
-            availableCalendarFormats: const {CalendarFormat.month: 'Ay'},
+            availableCalendarFormats: {
+              CalendarFormat.month: context.l10n.monthView,
+            },
             // Only month swipes; vertical drags must scroll the page.
             availableGestures: AvailableGestures.horizontalSwipe,
             headerStyle: const HeaderStyle(
@@ -109,7 +111,7 @@ class _DayList extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: Text(
-            DateFormat('d MMMM y, EEEE', 'tr').format(day),
+            context.l10n.dates.long(day),
             style: theme.textTheme.titleMedium,
           ),
         ),
@@ -117,8 +119,8 @@ class _DayList extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Text(
             tasks.isEmpty
-                ? 'Bu gün listede görev yoktu'
-                : '$done / ${tasks.length} tamamlandı',
+                ? context.l10n.historyEmptyDay
+                : context.l10n.doneOfTotal(done, tasks.length),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

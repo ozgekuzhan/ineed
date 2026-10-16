@@ -66,6 +66,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # Builds lib/l10n/app_localizations*.dart from the .arb files.
+  generate: true
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

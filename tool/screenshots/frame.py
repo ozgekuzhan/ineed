@@ -12,14 +12,26 @@ OUT = ROOT / "docs/screenshots"
 FONT = "/usr/share/fonts/opentype/inter/Inter-SemiBold.otf"
 
 CAPTIONS = {
-    "01_gorevler": "Görevler",
-    "02_gorevler_koyu": "Koyu tema",
-    "03_gorev_duzenle": "Görev düzenle",
-    "04_gecmis": "Geçmiş",
-    "05_takvim": "Takvim",
-    "06_dogum_gunu": "Doğum günü",
-    "07_ayarlar": "Ayarlar",
+    "tr": {
+        "01_gorevler": "Görevler",
+        "02_gorevler_koyu": "Koyu tema",
+        "03_gorev_duzenle": "Görev düzenle",
+        "04_gecmis": "Geçmiş",
+        "05_takvim": "Takvim",
+        "06_dogum_gunu": "Doğum günü",
+        "07_ayarlar": "Ayarlar",
+    },
+    "en": {
+        "01_gorevler": "Tasks",
+        "02_gorevler_koyu": "Dark mode",
+        "03_gorev_duzenle": "Edit task",
+        "04_gecmis": "History",
+        "05_takvim": "Calendar",
+        "06_dogum_gunu": "Birthday",
+        "07_ayarlar": "Settings",
+    },
 }
+TITLES = {"tr": "ineed — ekranlar", "en": "ineed — screens"}
 
 
 def is_dark(img):
@@ -67,15 +79,16 @@ def frame(img, radius=150, bezel=36):
     return shadow
 
 
-def main():
-    OUT.mkdir(parents=True, exist_ok=True)
+def build(lang):
+    out = OUT / lang
+    out.mkdir(parents=True, exist_ok=True)
     framed = []
-    for path in sorted(RAW.glob("*.png")):
+    for path in sorted((RAW / lang).glob("*.png")):
         img = status_bar(Image.open(path).convert("RGB"))
         f = frame(img)
         bg = Image.new("RGB", f.size, (236, 241, 245))
         bg.paste(f, (0, 0), f)
-        bg.save(OUT / path.name, optimize=True)
+        bg.save(out / path.name, optimize=True)
         framed.append((path.stem, f))
 
     # Overview: all screens side by side, scaled down, with captions.
@@ -89,7 +102,7 @@ def main():
     H = rows * (cell_h + cap) + (rows + 1) * pad + 120
     sheet = Image.new("RGB", (W, H), (236, 241, 245))
     d = ImageDraw.Draw(sheet)
-    d.text((pad + 20, 40), "ineed — ekranlar", font=ImageFont.truetype(FONT, 64), fill=(30, 40, 48))
+    d.text((pad + 20, 40), TITLES[lang], font=ImageFont.truetype(FONT, 64), fill=(30, 40, 48))
     capfont = ImageFont.truetype(FONT, 40)
     for i, (stem, f) in enumerate(framed):
         r, c = divmod(i, cols)
@@ -97,10 +110,16 @@ def main():
         y = 140 + pad + r * (cell_h + cap + pad)
         small = f.resize((cell_w, cell_h), Image.LANCZOS)
         sheet.paste(small, (x, y), small)
-        text = CAPTIONS.get(stem, stem)
+        text = CAPTIONS[lang].get(stem, stem)
         tw = d.textlength(text, font=capfont)
         d.text((x + (cell_w - tw) / 2, y + cell_h), text, font=capfont, fill=(30, 40, 48))
-    sheet.save(OUT / "00_genel_bakis.png", optimize=True)
+    sheet.save(out / "00_genel_bakis.png", optimize=True)
+
+
+
+def main():
+    for lang in ("tr", "en"):
+        build(lang)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../l10n/l10n.dart';
 import '../models/dates.dart';
 
 /// What happens to a task on today's list once it is ticked off.
@@ -15,10 +16,14 @@ enum CompletedBehavior {
 class SettingsStore extends ChangeNotifier {
   static const _completedKey = 'settings_completed_behavior';
   static const _reminderKey = 'settings_reminder_minutes';
+  static const _languageKey = 'settings_language';
   static const defaultReminderTime = (hour: 9, minute: 0);
 
   CompletedBehavior _completedBehavior = CompletedBehavior.strikeThrough;
   ClockTime _reminderTime = defaultReminderTime;
+  AppLanguage _language = AppLanguage.system;
+
+  AppLanguage get language => _language;
 
   CompletedBehavior get completedBehavior => _completedBehavior;
 
@@ -35,6 +40,9 @@ class SettingsStore extends ChangeNotifier {
     _reminderTime = minutes != null && minutes >= 0 && minutes < 24 * 60
         ? (hour: minutes ~/ 60, minute: minutes % 60)
         : defaultReminderTime;
+    _language =
+        AppLanguage.values.asNameMap()[prefs.getString(_languageKey)] ??
+        AppLanguage.system;
     notifyListeners();
   }
 
@@ -52,5 +60,13 @@ class SettingsStore extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_reminderKey, value.hour * 60 + value.minute);
+  }
+
+  Future<void> setLanguage(AppLanguage value) async {
+    if (value == _language) return;
+    _language = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_languageKey, value.name);
   }
 }

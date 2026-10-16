@@ -4,7 +4,9 @@ Sade, kişisel bir yapılacaklar + doğum günü/etkinlik takvimi uygulaması (F
 
 Yol haritası ve gün gün plan: [PLAN.md](PLAN.md)
 
-![Ekranlar](docs/screenshots/00_genel_bakis.png)
+![Ekranlar](docs/screenshots/tr/00_genel_bakis.png)
+
+English: [docs/screenshots/en](docs/screenshots/en/00_genel_bakis.png)
 
 Ekran görüntüleri uygulamanın gerçek ekranlarından üretilir (örnek verilerle):
 `flutter test tool/screenshots --update-goldens && python3 tool/screenshots/frame.py`
@@ -15,6 +17,7 @@ Ekran görüntüleri uygulamanın gerçek ekranlarından üretilir (örnek veril
 - **Tamamlananlar**: Ayarlar'dan *üstü çizili kalsın* veya *listeden kalksın*; ertesi gün liste yalnızca tamamlanmamışlarla başlar
 - **Geçmiş**: takvimden bir gün seç, listenin o günkü hali (o gün tamamlananlar üstü çizili)
 - **Takvim**: doğum günleri (yaş) ve etkinlikler, "Yaklaşanlar" listesi
+- **Dil**: Türkçe / English (veya telefonun dili)
 - **Hatırlatmalar**: görevlerde 1 gün önce / 1 saat önce / son tarihte; doğum günü ve etkinliklerde 3 gün önce ve gününde 09:00
 
 ## iPhone'da denemek (Mac gerekir)

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
+import '../l10n/l10n.dart';
 import '../state/event_store.dart';
 import '../state/save_queue.dart';
 import '../state/settings_store.dart';
@@ -21,7 +22,10 @@ class NotificationSync {
     required this.notifier,
     this.clock = DateTime.now,
     this.debounce = const Duration(milliseconds: 500),
-  });
+    List<Locale> Function()? deviceLocales,
+  }) : deviceLocales =
+           deviceLocales ??
+           (() => WidgetsBinding.instance.platformDispatcher.locales);
 
   final TaskStore tasks;
   final EventStore events;
@@ -29,6 +33,9 @@ class NotificationSync {
   final Notifier notifier;
   final DateTime Function() clock;
   final Duration debounce;
+
+  /// The phone's preferred languages, for the "automatic" language setting.
+  final List<Locale> Function() deviceLocales;
 
   final _queue = SaveQueue();
   Timer? _timer;
@@ -63,6 +70,9 @@ class NotificationSync {
         events: events.all,
         now: clock(),
         reminderTime: settings.reminderTime,
+        l10n: lookupAppLocalizations(
+          resolveLocale(settings.language, deviceLocales()),
+        ),
       );
       if (plan.isNotEmpty && !_askedPermission) {
         _askedPermission = true;

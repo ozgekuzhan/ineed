@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../l10n/l10n.dart';
 import '../models/dates.dart';
 import '../models/event.dart';
 import '../state/event_store.dart';
@@ -150,16 +150,16 @@ class _EventEditScreenState extends State<EventEditScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Silinsin mi?'),
-        content: Text('"${event.title}" takvimden silinecek.'),
+        title: Text(context.l10n.deleteConfirmTitle),
+        content: Text(context.l10n.deleteConfirmBody(event.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Vazgeç'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Sil'),
+            child: Text(context.l10n.delete),
           ),
         ],
       ),
@@ -169,50 +169,48 @@ class _EventEditScreenState extends State<EventEditScreen> {
     if (mounted) Navigator.of(context).pop();
   }
 
-  String _dateLabel() {
+  String _dateLabel(AppLocalizations l10n) {
     final d = _date;
-    if (d == null) return 'Tarih seç';
+    if (d == null) return l10n.pickDate;
     if (_isBirthday) {
-      return DateFormat(_hasYear ? 'd MMMM y' : 'd MMMM', 'tr').format(d);
+      return _hasYear ? l10n.dates.dayMonthYear(d) : l10n.dates.dayMonth(d);
     }
-    return DateFormat('d MMMM y, EEEE', 'tr').format(d);
+    return l10n.dates.long(d);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final canSave = _title.text.trim().isNotEmpty && _date != null;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isNew ? 'Yeni kayıt' : 'Düzenle'),
+        title: Text(_isNew ? l10n.newEntry : l10n.edit),
         actions: [
           if (!_isNew)
             IconButton(
-              tooltip: 'Sil',
+              tooltip: l10n.delete,
               onPressed: _delete,
               icon: const Icon(Icons.delete_outline),
             ),
-          TextButton(
-            onPressed: canSave ? _save : null,
-            child: const Text('Kaydet'),
-          ),
+          TextButton(onPressed: canSave ? _save : null, child: Text(l10n.save)),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           SegmentedButton<EventKind>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: EventKind.birthday,
-                label: Text('Doğum günü'),
-                icon: Icon(Icons.cake_outlined),
+                label: Text(l10n.birthday),
+                icon: const Icon(Icons.cake_outlined),
               ),
               ButtonSegment(
                 value: EventKind.event,
-                label: Text('Etkinlik'),
-                icon: Icon(Icons.event_outlined),
+                label: Text(l10n.event),
+                icon: const Icon(Icons.event_outlined),
               ),
             ],
             selected: {_kind},
@@ -227,25 +225,27 @@ class _EventEditScreenState extends State<EventEditScreen> {
                 ? TextCapitalization.words
                 : TextCapitalization.sentences,
             decoration: InputDecoration(
-              labelText: _isBirthday ? 'Kimin doğum günü?' : 'Etkinlik adı',
+              labelText: _isBirthday
+                  ? l10n.birthdayNameLabel
+                  : l10n.eventNameLabel,
               border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 24),
           Text(
-            _isBirthday ? 'Doğum tarihi' : 'Tarih',
+            _isBirthday ? l10n.birthDate : l10n.date,
             style: theme.textTheme.labelLarge,
           ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: _pickDate,
             icon: const Icon(Icons.event),
-            label: Text(_dateLabel()),
+            label: Text(_dateLabel(l10n)),
           ),
           if (_isBirthday)
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Doğum yılını bilmiyorum'),
+              title: Text(l10n.unknownBirthYear),
               value: !_hasYear,
               onChanged: (unknown) => setState(() {
                 // Going from "unknown" to a known year: the stored placeholder
@@ -257,7 +257,7 @@ class _EventEditScreenState extends State<EventEditScreen> {
           else ...[
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Saat ekle'),
+              title: Text(l10n.addTime),
               subtitle: _time == null ? null : Text(_time!.format(context)),
               value: _time != null,
               onChanged: (v) {
@@ -270,8 +270,8 @@ class _EventEditScreenState extends State<EventEditScreen> {
             ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Her yıl tekrarla'),
-              subtitle: const Text('Yıldönümleri gibi'),
+              title: Text(l10n.repeatYearly),
+              subtitle: Text(l10n.repeatYearlyHint),
               value: _yearly,
               onChanged: (v) => setState(() => _yearly = v),
             ),
@@ -282,10 +282,10 @@ class _EventEditScreenState extends State<EventEditScreen> {
             minLines: 2,
             maxLines: 6,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Not',
+            decoration: InputDecoration(
+              labelText: l10n.note,
               alignLabelWithHint: true,
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
@@ -300,12 +300,12 @@ class _EventEditScreenState extends State<EventEditScreen> {
               Expanded(
                 child: Text(
                   _isBirthday || _time == null
-                      ? '3 gün önce ve gününde saat '
-                            '${formatClockTime(widget.settings.reminderTime)} '
-                            'hatırlatılır (Ayarlar\'dan değiştirilebilir).'
-                      : '3 gün önce saat '
-                            '${formatClockTime(widget.settings.reminderTime)} '
-                            've başlamadan 1 saat önce hatırlatılır.',
+                      ? l10n.eventReminderHint(
+                          formatClockTime(widget.settings.reminderTime),
+                        )
+                      : l10n.timedEventReminderHint(
+                          formatClockTime(widget.settings.reminderTime),
+                        ),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

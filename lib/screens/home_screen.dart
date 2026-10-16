@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/task.dart';
 import '../state/settings_store.dart';
 import '../state/task_store.dart';
@@ -61,14 +62,14 @@ class _HomeScreenState extends State<HomeScreen> {
       ..showSnackBar(
         SnackBar(
           content: Text(message),
-          action: SnackBarAction(label: 'Geri al', onPressed: undo),
+          action: SnackBarAction(label: context.l10n.undo, onPressed: undo),
         ),
       );
   }
 
   void _delete(Task task) {
     store.remove(task);
-    _showUndo('"${task.title}" silindi', () => store.restore(task));
+    _showUndo(context.l10n.taskDeleted(task.title), () => store.restore(task));
   }
 
   void _toggle(Task task) {
@@ -78,7 +79,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // was a mistake.
     if (completing &&
         widget.settings.completedBehavior == CompletedBehavior.hide) {
-      _showUndo('"${task.title}" tamamlandı', () => store.toggleDone(task));
+      _showUndo(
+        context.l10n.taskCompleted(task.title),
+        () => store.toggleDone(task),
+      );
     }
   }
 
@@ -106,15 +110,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Yapılacaklar'),
+        title: Text(context.l10n.tasksTitle),
         actions: [
           IconButton(
-            tooltip: 'Geçmiş',
+            tooltip: context.l10n.history,
             onPressed: _openHistory,
             icon: const Icon(Icons.history),
           ),
           IconButton(
-            tooltip: 'Ayarlar',
+            tooltip: context.l10n.settings,
             onPressed: _openSettings,
             icon: const Icon(Icons.settings_outlined),
           ),
@@ -122,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openEditor,
-        tooltip: 'Yeni görev',
+        tooltip: context.l10n.newTask,
         child: const Icon(Icons.add),
       ),
       body: MinuteTicker(
@@ -147,15 +151,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (visible.isEmpty) {
       return doneToday == 0
-          ? const _EmptyState(
+          ? _EmptyState(
               icon: Icons.check_circle_outline,
-              title: 'Henüz görev yok',
-              subtitle: '+ ile ilk görevini ekle',
+              title: context.l10n.emptyTasksTitle,
+              subtitle: context.l10n.emptyTasksHint,
             )
           : _EmptyState(
               icon: Icons.celebration_outlined,
-              title: 'Hepsi tamam 🎉',
-              subtitle: 'Bugün $doneToday görev tamamladın',
+              title: context.l10n.allDoneTitle,
+              subtitle: context.l10n.allDoneSubtitle(doneToday),
             );
     }
 
@@ -185,7 +189,7 @@ class _Progress extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Bugün $done / $total tamamlandı',
+            context.l10n.todayProgress(done, total),
             style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -198,7 +202,7 @@ class _Progress extends StatelessWidget {
               minHeight: 6,
               // The value is announced as a percentage; the line above
               // already says "x / y".
-              semanticsLabel: 'Bugünkü ilerleme',
+              semanticsLabel: context.l10n.todayProgressLabel,
             ),
           ),
         ],

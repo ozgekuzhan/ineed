@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../l10n/l10n.dart';
 import '../models/task.dart';
 import '../state/task_store.dart';
 import '../widgets/priority_style.dart';
@@ -105,16 +105,14 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final canSave = _title.text.trim().isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isNew ? 'Yeni görev' : 'Görevi düzenle'),
+        title: Text(_isNew ? l10n.newTask : l10n.editTask),
         actions: [
-          TextButton(
-            onPressed: canSave ? _save : null,
-            child: const Text('Kaydet'),
-          ),
+          TextButton(onPressed: canSave ? _save : null, child: Text(l10n.save)),
         ],
       ),
       body: ListView(
@@ -124,21 +122,21 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
             controller: _title,
             autofocus: _isNew,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Ne yapılacak?',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: l10n.taskTitleLabel,
+              border: const OutlineInputBorder(),
             ),
             onSubmitted: (_) => _save(),
           ),
           const SizedBox(height: 24),
-          Text('Öncelik', style: Theme.of(context).textTheme.labelLarge),
+          Text(l10n.priority, style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: 8),
           SegmentedButton<Priority>(
             segments: [
               for (final p in Priority.values)
                 ButtonSegment(
                   value: p,
-                  label: Text(p.label),
+                  label: Text(l10n.priorityLabel(p)),
                   icon: Icon(
                     Icons.circle,
                     size: 12,
@@ -151,7 +149,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
             onSelectionChanged: (s) => setState(() => _priority = s.first),
           ),
           const SizedBox(height: 24),
-          Text('Son tarih', style: Theme.of(context).textTheme.labelLarge),
+          Text(l10n.dueDate, style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -161,17 +159,14 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                   icon: const Icon(Icons.event),
                   label: Text(
                     _dueDate == null
-                        ? 'Tarih seç'
-                        : DateFormat(
-                            'd MMMM y, EEEE HH:mm',
-                            'tr',
-                          ).format(_dueDate!),
+                        ? l10n.pickDate
+                        : l10n.dates.longWithTime(_dueDate!),
                   ),
                 ),
               ),
               if (_dueDate != null)
                 IconButton(
-                  tooltip: 'Tarihi kaldır',
+                  tooltip: l10n.removeDate,
                   onPressed: () => setState(() => _dueDate = null),
                   icon: const Icon(Icons.close),
                 ),
@@ -181,7 +176,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                '1 gün önce, 1 saat önce ve son tarihte hatırlatılır.',
+                l10n.taskReminderHint,
                 style: Theme.of(context).textTheme.bodySmall
                     ?.copyWith(color: scheme.onSurfaceVariant),
               ),
@@ -192,10 +187,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
             minLines: 3,
             maxLines: 8,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Not',
+            decoration: InputDecoration(
+              labelText: l10n.note,
               alignLabelWithHint: true,
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
           ),
           if (!_isNew) ...[
@@ -203,11 +198,7 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
             FilledButton.tonalIcon(
               onPressed: _toggleDone,
               icon: Icon(_wasDone ? Icons.undo : Icons.check),
-              label: Text(
-                _wasDone
-                    ? 'Tamamlanmadı olarak işaretle'
-                    : 'Tamamlandı olarak işaretle',
-              ),
+              label: Text(_wasDone ? l10n.markNotDone : l10n.markDone),
             ),
           ],
         ],

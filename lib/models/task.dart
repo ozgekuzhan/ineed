@@ -1,12 +1,4 @@
-enum Priority {
-  high('Yüksek'),
-  medium('Orta'),
-  low('Düşük');
-
-  const Priority(this.label);
-
-  final String label;
-}
+enum Priority { high, medium, low }
 
 class Task {
   const Task({

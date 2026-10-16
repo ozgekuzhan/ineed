@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../l10n/l10n.dart';
 import '../models/dates.dart';
 import '../models/event.dart';
 import '../state/event_store.dart';
@@ -52,18 +52,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Takvim'),
+        title: Text(context.l10n.tabCalendar),
         actions: [
           if (_selected != null)
             TextButton(
               onPressed: () => setState(() => _selected = null),
-              child: const Text('Yaklaşanlar'),
+              child: Text(context.l10n.upcoming),
             ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'add-event',
-        tooltip: 'Yeni doğum günü / etkinlik',
+        tooltip: context.l10n.newEntryTooltip,
         onPressed: () => _openEditor(day: _selected),
         child: const Icon(Icons.add),
       ),
@@ -86,13 +86,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
       slivers: [
         SliverToBoxAdapter(
           child: TableCalendar<Event>(
-            locale: 'tr',
+            locale: context.l10n.localeName,
             firstDay: DateTime(1900),
             lastDay: DateTime(today.year + 20, 12, 31),
             focusedDay: _focused,
             currentDay: today,
             startingDayOfWeek: StartingDayOfWeek.monday,
-            availableCalendarFormats: const {CalendarFormat.month: 'Ay'},
+            availableCalendarFormats: {
+              CalendarFormat.month: context.l10n.monthView,
+            },
             // Only month swipes; vertical drags must scroll the page.
             availableGestures: AvailableGestures.horizontalSwipe,
             headerStyle: const HeaderStyle(
@@ -152,14 +154,14 @@ class _UpcomingList extends StatelessWidget {
   Widget build(BuildContext context) {
     final upcoming = store.upcoming(today);
     if (upcoming.isEmpty) {
-      return const SliverFillRemaining(
+      return SliverFillRemaining(
         hasScrollBody: false,
-        child: _Hint('Henüz kayıt yok.\n+ ile doğum günü veya etkinlik ekle.'),
+        child: _Hint(context.l10n.calendarEmpty),
       );
     }
     return SliverList.list(
       children: [
-        const _SectionTitle('Yaklaşanlar'),
+        _SectionTitle(context.l10n.upcoming),
         for (final u in upcoming)
           EventTile(
             event: u.event,
@@ -190,11 +192,11 @@ class _DayList extends StatelessWidget {
     final events = store.on(day);
     return SliverList.list(
       children: [
-        _SectionTitle(DateFormat('d MMMM y, EEEE', 'tr').format(day)),
+        _SectionTitle(context.l10n.dates.long(day)),
         if (events.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('Bu günde kayıt yok.'),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(context.l10n.dayEmpty),
           ),
         for (final e in events)
           EventTile(event: e, day: day, today: today, onTap: () => onTap(e)),
@@ -225,11 +227,11 @@ class EventTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final isBirthday = event.kind == EventKind.birthday;
     final age = event.ageOn(day);
+    final l10n = context.l10n;
     final details = [
-      DateFormat('d MMMM EEEE', 'tr').format(day),
-      if (event.hasTime && !isBirthday)
-        DateFormat('HH:mm', 'tr').format(event.date),
-      if (age != null) '$age yaşına giriyor',
+      l10n.dates.dayMonthWeekday(day),
+      if (event.hasTime && !isBirthday) l10n.dates.time(event.date),
+      if (age != null) l10n.turnsAge(age),
     ].join(' · ');
 
     return ListTile(
@@ -243,7 +245,7 @@ class EventTile extends StatelessWidget {
           color: isBirthday
               ? scheme.onTertiaryContainer
               : scheme.onSecondaryContainer,
-          semanticLabel: event.kind.label,
+          semanticLabel: l10n.eventKindLabel(event.kind),
         ),
       ),
       title: Text(event.title),
@@ -263,10 +265,10 @@ class _Countdown extends StatelessWidget {
     final theme = Theme.of(context);
     final soon = days >= 0 && days <= 3;
     final text = switch (days) {
-      < 0 => '${-days} gün önce',
-      0 => 'Bugün',
-      1 => 'Yarın',
-      _ => '$days gün sonra',
+      < 0 => context.l10n.daysAgo(-days),
+      0 => context.l10n.today,
+      1 => context.l10n.tomorrow,
+      _ => context.l10n.inDays(days),
     };
     return Text(
       text,

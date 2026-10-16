@@ -1,11 +1,4 @@
-enum EventKind {
-  birthday('Doğum günü'),
-  event('Etkinlik');
-
-  const EventKind(this.label);
-
-  final String label;
-}
+enum EventKind { birthday, event }
 
 /// A birthday or an event on the calendar.
 class Event {
